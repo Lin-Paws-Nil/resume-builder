@@ -15,7 +15,22 @@ export function createClient() {
   }
 
   try {
-    return createBrowserClient(url, key);
+    return createBrowserClient(url, key, {
+      cookies: {
+        get(name: string) {
+          return document.cookie
+            .split('; ')
+            .find((row) => row.startsWith(`${name}=`))
+            ?.split('=')[1];
+        },
+        set(name: string, value: string, options: any) {
+          document.cookie = `${name}=${value}; path=/; max-age=${options.maxAge || 31536000}; SameSite=Lax; Secure`;
+        },
+        remove(name: string) {
+          document.cookie = `${name}=; path=/; max-age=0`;
+        },
+      },
+    });
   } catch (error) {
     console.error('Failed to create Supabase client:', error);
     // Return a client with empty strings as fallback
