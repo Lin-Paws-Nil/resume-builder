@@ -76,31 +76,18 @@ export function useAuth() {
 
   const checkSession = async () => {
     try {
-      // Don't use timeout for session check - let it complete naturally
-      // If Supabase is slow, it's better to wait than to timeout
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Use getUser() for JWT validation instead of getSession()
+      // getSession() only reads from storage, getUser() validates with server
+      const { data: { user: authUser }, error } = await supabase.auth.getUser();
       
-      if (error || !session) {
+      if (error || !authUser) {
         setUser(null);
         setIsGuest(true);
         setLoading(false);
         return;
       }
 
-      // Check if session is expired
-      const expiresAt = session.expires_at;
-      if (expiresAt) {
-        const now = Math.floor(Date.now() / 1000);
-        if (expiresAt < now) {
-          supabase.auth.signOut().catch(err => console.error('Sign out error:', err));
-          setUser(null);
-          setIsGuest(true);
-          setLoading(false);
-          return;
-        }
-      }
-
-      await loadUserProfile(session.user);
+      await loadUserProfile(authUser);
     } catch (error: any) {
       console.error('Session check error:', error);
       // Allow app to continue even if session check fails
