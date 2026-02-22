@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -37,45 +37,15 @@ export async function middleware(request: NextRequest) {
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set(name, value);
-          response.cookies.set(name, value, {
-            ...options,
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production',
-          });
+          response.cookies.set(name, value, options);
         });
       },
     },
   });
 
-  // Try to get session, but handle errors gracefully
-  // If fetch fails (network issues, invalid credentials, etc.), treat as unauthenticated
-  // Using getSession() instead of getUser() as it's lighter and more reliable in edge runtime
-  let user = null;
-  
-  // First check if there are any auth cookies to avoid unnecessary requests
-  const hasAuthCookies = request.cookies.getAll().some(
-    (cookie) => cookie.name.includes('sb-') && cookie.name.includes('auth-token')
-  );
-  
-  // Only attempt to get session if auth cookies are present
-  if (hasAuthCookies) {
-    try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-      
-      // Only set user if there's no error and session exists with a user
-      if (!error && session?.user) {
-        user = session.user;
-      }
-    } catch (error: any) {
-      // If fetch fails or any other error occurs, silently continue
-      // This allows the middleware to continue processing the request
-      // The error is already logged by Supabase internally
-      user = null;
-    }
-  }
+  // IMPORTANT: Use getUser() instead of getSession() for validation
+  // This validates the JWT and refreshes the session if needed
+  const { data: { user }, error } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 

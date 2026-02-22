@@ -9,32 +9,10 @@ export function createClient() {
       hasUrl: !!url,
       hasKey: !!key,
     });
-    // Create a client with empty strings - it will fail gracefully on API calls
-    // This prevents the app from crashing during initialization
-    return createBrowserClient(url || '', key || '');
+    throw new Error('Missing Supabase environment variables');
   }
 
-  try {
-    return createBrowserClient(url, key, {
-      cookies: {
-        get(name: string) {
-          return document.cookie
-            .split('; ')
-            .find((row) => row.startsWith(`${name}=`))
-            ?.split('=')[1];
-        },
-        set(name: string, value: string, options: any) {
-          document.cookie = `${name}=${value}; path=/; max-age=${options.maxAge || 31536000}; SameSite=Lax; Secure`;
-        },
-        remove(name: string) {
-          document.cookie = `${name}=; path=/; max-age=0`;
-        },
-      },
-    });
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-    // Return a client with empty strings as fallback
-    return createBrowserClient('', '');
-  }
+  // Use default cookie handling - @supabase/ssr handles this automatically
+  return createBrowserClient(url, key);
 }
 
