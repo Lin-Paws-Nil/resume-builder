@@ -78,6 +78,11 @@ export async function middleware(request: NextRequest) {
   // Public routes (no auth required)
   const publicRoutes = ['/', '/login', '/signup', '/templates'];
   const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route + '/'));
+  
+  // Allow OAuth callback routes to pass through without auth checks
+  if (pathname.startsWith('/api/auth/linkedin')) {
+    return response;
+  }
 
   // Protected routes (require auth)
   const protectedRoutes = ['/account', '/builder'];
