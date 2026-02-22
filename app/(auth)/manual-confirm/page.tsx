@@ -61,9 +61,9 @@ export default function ManualConfirmPage() {
     setMessage('');
 
     try {
-      // Try to verify the token
+      // Try to verify the token using token hash method
       const { data, error } = await supabase.auth.verifyOtp({
-        token: token,
+        token_hash: token,
         type: 'signup',
       });
 

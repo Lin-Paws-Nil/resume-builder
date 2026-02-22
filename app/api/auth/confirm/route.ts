@@ -20,10 +20,9 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Verify the token and confirm the email
-    // For email confirmation, we need to extract token and email from the hash
+    // Verify the token and confirm the email using token hash method
     const { data, error } = await supabase.auth.verifyOtp({
-      token: token,
+      token_hash: token,
       type: type as 'signup' | 'email',
     });
 

@@ -21,7 +21,7 @@ function findInZip(zip: AdmZip, ...names: string[]): Buffer | null {
 
 function parseCsv(buf: Buffer): Record<string, string>[] {
   const text = buf.toString('utf-8');
-  const rows = parse(text, { columns: true, skip_empty_lines: true, trim: true, relax_column_count: true });
+  const rows = parse(text, { columns: true, skip_empty_lines: true, trim: true, relax_column_count: true }) as Record<string, string>[];
   return Array.isArray(rows) ? rows : [];
 }
 

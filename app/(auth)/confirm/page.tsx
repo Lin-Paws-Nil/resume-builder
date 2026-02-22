@@ -26,9 +26,9 @@ function ConfirmForm() {
       try {
         const supabase = createClient();
 
-        // Verify the token
+        // Verify the token using token hash method
         const { data, error } = await supabase.auth.verifyOtp({
-          token: token,
+          token_hash: token,
           type: type as 'signup' | 'email',
         });
 

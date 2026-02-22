@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ResumeUpload } from '@/components/resume/ResumeUpload';
 import { LinkedInImport } from '@/components/resume/LinkedInImport';
@@ -16,7 +16,9 @@ import { SessionWarning } from '@/components/ui/session-warning';
 import { Notification } from '@/components/ui/notification';
 import { createClient } from '@/lib/supabase/client';
 
-export default function BuilderPage() {
+export const dynamic = 'force-dynamic';
+
+function BuilderPageContent() {
   const { 
     resume, 
     setResume, 
@@ -557,5 +559,20 @@ export default function BuilderPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function BuilderPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <BuilderPageContent />
+    </Suspense>
   );
 }
