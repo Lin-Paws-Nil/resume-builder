@@ -1,0 +1,172 @@
+{
+  "id": "lunar-resume",
+  "title": "Lunar Resume - Swapnil D",
+  "personalInfo": {
+    "fullName": "Swapnil D",
+    "email": "swapnilbilimale32@gmail.com",
+    "phone": "+91 9900442054",
+    "location": "Bangalore, India",
+    "linkedin": "",
+    "github": "",
+    "website": ""
+  },
+  "summary": "Performance-driven and hard working Senior Salesforce Developer with a proven track record of success in developing new sustainable and robust business solutions for more than 5 years, holding passion towards learning new technical and functional skills, in self-pursuit of excellence.",
+  "experiences": [
+    {
+      "id": "exp-1",
+      "company": "Palo Alto Networks",
+      "position": "Senior Software Engineer",
+      "startDate": "08/2023",
+      "endDate": "Current",
+      "current": true,
+      "description": [
+        "Leading the team for Account-Address restructure for the entire org, design and development of Account search wizard, built multiple LWC components and implemented revamp of older integrations under the same",
+        "Built and managed components over the experience cloud and partner related functionalities - generally revolving around Account, Deals and Opportunity Management",
+        "Ownership of E2E solution of Price Estimation (PDF generation of Pre-Quote) with design and development of robust framework to maintain partner specific conditional discounts",
+        "Quick design and delivery of LWC forms to capture executive plan of action involving high level strategies and heat-maps by building framework with little to none code change required as part of fulfilling newer business requirements",
+        "Implemented heavy lifting functionalities like batch of batches, mass email generation, mass record updates through platform events etc",
+        "Perform code reviews, ensure good development standards are maintained, involved in maintenance of complete platform health etc",
+        "Constantly involved in fixing production bugs with quick turnaround time",
+        "Involved in AI incorporated MCP POCs and Gemini integration with Salesforce"
+      ]
+    },
+    {
+      "id": "exp-2",
+      "company": "Deloitte USI",
+      "position": "Consultant",
+      "startDate": "01/2020",
+      "endDate": "08/2023",
+      "current": false,
+      "description": [
+        "Provided customised and sustainable solutions to major US clients like Pfizer and Humana by recognising their business requirements in the broader context of their digital strategy",
+        "Designed and implemented robust LWC components with necessary apex functionality to capture Patient Pre-enrolment and Enrolment data",
+        "Constructed Batch Apex and Schedulers to capture reporting relevant data metrics",
+        "Streamlined the content management system of Einstein bot by designing and developing top of class dynamic framework for message management with LWC and Apex which ultimately raised the self-serviceability of the bots to a new level",
+        "Ownership of entire chatbot design and development catering to Pfizers business needs",
+        "Managed client demos and knowledge transfer sessions",
+        "Was given the Applause award for my role in development of Pfizer related solutions",
+        "Ownership of functionality to send claims related data to necessary stakeholders in 837P format - was awarded Kudos"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "edu-1",
+      "institution": "The National Institute of Engineering",
+      "degree": "Bachelor of Engineering",
+      "field": "Computer Science",
+      "startDate": "06/2015",
+      "endDate": "05/2019",
+      "gpa": "8.1 CGPA",
+      "honors": ""
+    },
+    {
+      "id": "edu-2",
+      "institution": "Expert PU Science College",
+      "degree": "",
+      "field": "PCM - Statistics",
+      "startDate": "06/2013",
+      "endDate": "05/2015",
+      "gpa": "94.83%",
+      "honors": ""
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill-1",
+      "category": "Salesforce",
+      "items": [
+        "LWC",
+        "Sales Cloud",
+        "Service Cloud",
+        "Health cloud",
+        "Apex",
+        "Einstein Bot"
+      ]
+    },
+    {
+      "id": "skill-2",
+      "category": "Methodologies",
+      "items": [
+        "Agile"
+      ]
+    }
+  ],
+  "projects": [],
+  "certifications": [
+    {
+      "id": "cert-1",
+      "name": "Salesforce Certified Service Cloud Consultant",
+      "issuer": "Salesforce",
+      "date": "",
+      "expiryDate": ""
+    },
+    {
+      "id": "cert-2",
+      "name": "Salesforce Certified Platform Developer I",
+      "issuer": "Salesforce",
+      "date": "",
+      "expiryDate": ""
+    },
+    {
+      "id": "cert-3",
+      "name": "Salesforce Certified Admin",
+      "issuer": "Salesforce",
+      "date": "",
+      "expiryDate": ""
+    },
+    {
+      "id": "cert-4",
+      "name": "Salesforce Certified Platform App Builder",
+      "issuer": "Salesforce",
+      "date": "",
+      "expiryDate": ""
+    },
+    {
+      "id": "cert-5",
+      "name": "Copado Certified Developer",
+      "issuer": "",
+      "date": "",
+      "expiryDate": ""
+    },
+    {
+      "id": "cert-6",
+      "name": "Strategic Management and Innovation",
+      "issuer": "Copenhagen Business School",
+      "date": "",
+      "expiryDate": ""
+    }
+  ],
+  "hobbies": [
+    {
+      "id": "hobby-1",
+      "name": "Gardening",
+      "description": ""
+    }
+  ],
+  "customSections": [],
+  "sectionOrder": [
+    "personalInfo",
+    "summary",
+    "experiences",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "hobbies"
+  ],
+  "sectionNames": {
+    "personalInfo": "Personal Information",
+    "summary": "Summary",
+    "experiences": "Experience",
+    "education": "Education",
+    "skills": "Skills",
+    "projects": "Projects",
+    "certifications": "Certifications",
+    "hobbies": "Hobbies"
+  },
+  "templateId": "lunar",
+  "createdAt": "2025-01-11T19:00:04.000Z",
+  "updatedAt": "2025-01-11T19:00:04.000Z"
+}
+
