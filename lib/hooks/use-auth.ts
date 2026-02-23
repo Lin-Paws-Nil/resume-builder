@@ -82,6 +82,8 @@ export function useAuth() {
   const checkSession = async () => {
     try {
       console.log('=== [useAuth] CHECKING SESSION ===');
+      console.log('[useAuth] Cookies:', document.cookie.split(';').map(c => c.trim().split('=')[0]));
+      
       // Use getUser() for JWT validation instead of getSession()
       // getSession() only reads from storage, getUser() validates with server
       const { data: { user: authUser }, error } = await supabase.auth.getUser();
