@@ -37,7 +37,14 @@ export async function middleware(request: NextRequest) {
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set(name, value);
-          response.cookies.set(name, value, options);
+          // For OAuth flows, we need SameSite=None to preserve cookies during cross-site redirects
+          // Only apply this for auth tokens to maintain security
+          const isAuthToken = name.includes('auth-token');
+          response.cookies.set(name, value, {
+            ...options,
+            sameSite: isAuthToken ? 'none' : 'lax',
+            secure: true, // Required for SameSite=None
+          });
         });
       },
     },
