@@ -30,6 +30,7 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[useAuth] Auth state changed:', event, !!session);
       try {
         if (event === 'SIGNED_IN' && session) {
           await loadUserProfile(session.user);
@@ -39,6 +40,10 @@ export function useAuth() {
           setIsGuest(true);
           setLoading(false);
         } else if (event === 'TOKEN_REFRESHED' && session) {
+          await loadUserProfile(session.user);
+          setLoading(false);
+        } else if (event === 'INITIAL_SESSION' && session) {
+          // Handle initial session on page load
           await loadUserProfile(session.user);
           setLoading(false);
         }
@@ -76,17 +81,22 @@ export function useAuth() {
 
   const checkSession = async () => {
     try {
+      console.log('[useAuth] Checking session...');
       // Use getUser() for JWT validation instead of getSession()
       // getSession() only reads from storage, getUser() validates with server
       const { data: { user: authUser }, error } = await supabase.auth.getUser();
       
+      console.log('[useAuth] getUser result:', { hasUser: !!authUser, error: error?.message });
+      
       if (error || !authUser) {
+        console.log('[useAuth] No valid user, setting as guest');
         setUser(null);
         setIsGuest(true);
         setLoading(false);
         return;
       }
 
+      console.log('[useAuth] Valid user found, loading profile...');
       await loadUserProfile(authUser);
     } catch (error: any) {
       console.error('Session check error:', error);
@@ -99,6 +109,7 @@ export function useAuth() {
 
   const loadUserProfile = async (authUser: User) => {
     try {
+      console.log('[useAuth] Loading profile for user:', authUser.id);
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('username, first_name, last_name, email')
@@ -120,13 +131,16 @@ export function useAuth() {
         return;
       }
 
-      setUser({
+      const userData = {
         id: authUser.id,
         email: authUser.email || profile?.email || '',
         username: profile?.username,
         firstName: profile?.first_name || undefined,
         lastName: profile?.last_name || undefined,
-      });
+      };
+      
+      console.log('[useAuth] User profile loaded, setting isGuest=false');
+      setUser(userData);
       setIsGuest(false);
       setLoading(false);
     } catch (error) {

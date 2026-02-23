@@ -477,10 +477,11 @@ function BuilderPageContent() {
                 Logout
               </Button>
             )}
-            {isGuest && (
+            {(!user || isGuest) && (
               <Button
                 type="button"
                 onClick={() => {
+                  console.log('[Builder] Login button clicked, user:', user, 'isGuest:', isGuest);
                   window.location.href = '/login?redirect=' + encodeURIComponent('/builder');
                 }}
                 variant="outline"
