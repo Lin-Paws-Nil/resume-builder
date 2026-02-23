@@ -480,8 +480,15 @@ function BuilderPageContent() {
             {(!user || isGuest) && (
               <Button
                 type="button"
-                onClick={() => {
-                  console.log('[Builder] Login button clicked, user:', user, 'isGuest:', isGuest);
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('=== LOGIN BUTTON CLICKED ===');
+                  console.log('User:', user);
+                  console.log('IsGuest:', isGuest);
+                  console.log('AuthLoading:', authLoading);
+                  console.log('==========================');
+                  alert('Login button clicked! Check console for details.');
                   window.location.href = '/login?redirect=' + encodeURIComponent('/builder');
                 }}
                 variant="outline"

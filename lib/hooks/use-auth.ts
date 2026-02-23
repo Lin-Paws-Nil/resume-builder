@@ -81,12 +81,17 @@ export function useAuth() {
 
   const checkSession = async () => {
     try {
-      console.log('[useAuth] Checking session...');
+      console.log('=== [useAuth] CHECKING SESSION ===');
       // Use getUser() for JWT validation instead of getSession()
       // getSession() only reads from storage, getUser() validates with server
       const { data: { user: authUser }, error } = await supabase.auth.getUser();
       
-      console.log('[useAuth] getUser result:', { hasUser: !!authUser, error: error?.message });
+      console.log('[useAuth] getUser result:', { 
+        hasUser: !!authUser, 
+        userId: authUser?.id,
+        userEmail: authUser?.email,
+        error: error?.message 
+      });
       
       if (error || !authUser) {
         console.log('[useAuth] No valid user, setting as guest');
@@ -99,7 +104,7 @@ export function useAuth() {
       console.log('[useAuth] Valid user found, loading profile...');
       await loadUserProfile(authUser);
     } catch (error: any) {
-      console.error('Session check error:', error);
+      console.error('[useAuth] Session check error:', error);
       // Allow app to continue even if session check fails
       setUser(null);
       setIsGuest(true);
