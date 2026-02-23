@@ -380,16 +380,15 @@ function BuilderPageContent() {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Debug Panel - Remove after fixing */}
-      {isMounted && (
-        <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-xs font-mono">
-          <strong>DEBUG:</strong> User: {user ? `✅ ${user.email}` : '❌ null'} | 
-          IsGuest: {isGuest ? '❌ TRUE' : '✅ FALSE'} | 
-          AuthLoading: {authLoading ? 'YES' : 'NO'} | 
-          SubLoading: {subLoading ? 'YES' : 'NO'} |
-          Premium: {subscription?.canDownload ? '✅ YES' : '❌ NO'}
-        </div>
-      )}
+      {/* Debug Panel - Always visible */}
+      <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-xs font-mono z-50">
+        <strong>DEBUG:</strong> User: {user ? `✅ ${user.email}` : '❌ null'} | 
+        IsGuest: {isGuest ? '❌ TRUE' : '✅ FALSE'} | 
+        AuthLoading: {authLoading ? 'YES' : 'NO'} | 
+        SubLoading: {subLoading ? 'YES' : 'NO'} |
+        Premium: {subscription?.canDownload ? '✅ YES' : '❌ NO'} |
+        Mounted: {isMounted ? 'YES' : 'NO'}
+      </div>
       
       {/* Session Warning */}
       {user && !isGuest && sessionTimeRemaining > 0 && (
