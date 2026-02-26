@@ -145,7 +145,7 @@ export function LinkedInImport() {
             ) : (
               <>
                 <p className="text-sm text-muted-foreground">
-                  Sign in with LinkedIn to import your <strong>name, email, and profile link</strong>. For experience, education, and skills, add them below or upload a LinkedIn data export (ZIP).
+                  Sign in with LinkedIn to import your <strong>name, email, and profile picture</strong>. For experience, education, and skills, add them manually or upload a LinkedIn data export (ZIP).
                 </p>
                 <Button
                   type="button"

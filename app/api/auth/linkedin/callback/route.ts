@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac } from 'node:crypto';
-import { mapIdentityMeToResume } from '@/lib/services/linkedin-to-resume';
-import type { IdentityMeResponse } from '@/lib/services/linkedin-to-resume';
+import { mapOpenIDToResume } from '@/lib/services/linkedin-to-resume';
 import type { ResumeData } from '@/lib/types/resume';
-
-const LINKEDIN_VERSION = '202509';
 
 function verifyState(state: string, secret: string): { u: string } | null {
   const i = state.lastIndexOf('.');
@@ -114,32 +111,40 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(url.toString());
   }
 
-  // GET /identityMe (Verified on LinkedIn)
-  const meRes = await fetch('https://api.linkedin.com/rest/identityMe', {
+  // GET /userinfo (OpenID Connect)
+  const meRes = await fetch('https://api.linkedin.com/v2/userinfo', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      'LinkedIn-Version': LINKEDIN_VERSION,
     },
   });
 
   if (!meRes.ok) {
     const t = await meRes.text();
-    console.error('LinkedIn identityMe failed:', meRes.status, t);
+    console.error('LinkedIn userinfo failed:', meRes.status, t);
     const url = new URL(redirectBase);
     url.searchParams.set('error', 'linkedin_identity_failed');
     return NextResponse.redirect(url.toString());
   }
 
-  let me: IdentityMeResponse;
+  let userInfo: {
+    sub?: string;
+    name?: string;
+    given_name?: string;
+    family_name?: string;
+    picture?: string;
+    locale?: string;
+    email?: string;
+    email_verified?: boolean;
+  };
   try {
-    me = (await meRes.json()) as IdentityMeResponse;
+    userInfo = await meRes.json();
   } catch {
     const url = new URL(redirectBase);
     url.searchParams.set('error', 'linkedin_identity_invalid');
     return NextResponse.redirect(url.toString());
   }
 
-  const resume = mapIdentityMeToResume(me, undefined);
+  const resume = mapOpenIDToResume(userInfo);
   const token = createImportToken(resume, parsed.u, secret);
 
   const url = new URL(redirectBase);
