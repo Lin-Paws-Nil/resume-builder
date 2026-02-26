@@ -52,10 +52,10 @@ openssl rand -base64 32
 ```
 
 **Optional – LinkedIn Import (Premium, no third-party):**  
-Uses [Verified on LinkedIn](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/verified-on-linkedin/overview) (official LinkedIn API). Import brings **name, email, and profile link**; for experience, education, and skills use the **Upload LinkedIn export (ZIP)** option (no API).
+Uses [Sign In with LinkedIn using OpenID Connect](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2) (official LinkedIn API). Import brings **name, email, profile picture, and locale**; for experience, education, and skills use the **Upload LinkedIn export (ZIP)** option (no API).
 
-1. Create an app at [LinkedIn Developers](https://www.linkedin.com/developers/apps) and add the **Verified on LinkedIn** product.
-2. In the app, set the redirect URL to: `{NEXTAUTH_URL}/api/auth/linkedin/callback` (e.g. `http://localhost:3000/api/auth/linkedin/callback` for dev).
+1. Create an app at [LinkedIn Developers](https://www.linkedin.com/developers/apps) and add the **"Sign In with LinkedIn using OpenID Connect"** product.
+2. In the app, set the redirect URL to: `{NEXTAUTH_URL}/api/auth/linkedin/callback` (e.g. `http://localhost:3000/api/auth/linkedin/callback` for dev, `https://your-site.vercel.app/api/auth/linkedin/callback` for production).
 3. In `.env.local`:
 ```env
 LINKEDIN_CLIENT_ID=your-app-client-id
@@ -63,6 +63,13 @@ LINKEDIN_CLIENT_SECRET=your-app-client-secret
 LINKEDIN_IMPORT_SECRET=random-secret-for-signing
 ```
 Use `LINKEDIN_IMPORT_SECRET` or `NEXTAUTH_SECRET` for signing. **Upload LinkedIn export (ZIP)** works without any of these.
+
+**Data Retrieved via OAuth:**
+- ✅ Full name (given_name + family_name)
+- ✅ Email address (with verification status)
+- ✅ Profile picture URL
+- ✅ Locale/region
+- ❌ Experience, education, skills (use ZIP export)
 
 **Optional – OpenAI (resume parse, enhance, grammar, spelling):**
 ```env
