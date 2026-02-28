@@ -131,6 +131,8 @@ function generateResumeHTML(resume: ResumeData): string {
       margin: 0;
       padding: 0;
       background: white;
+      orphans: 3;
+      widows: 3;
     }
     .resume-container {
       max-width: 100%;
@@ -201,6 +203,20 @@ function generateResumeHTML(resume: ResumeData): string {
     }
     .description li {
       margin: 3pt 0;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .experience-item, .education-item {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .section {
+      page-break-inside: auto;
+      break-inside: auto;
+    }
+    section {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .skills-list {
       font-size: 10pt;
@@ -419,6 +435,8 @@ function generateAuroraHTML(resume: ResumeData): string {
       margin: 0;
       padding: 0;
       background: white;
+      orphans: 3;
+      widows: 3;
     }
     .aurora-header {
       padding: 24pt;
@@ -510,9 +528,21 @@ function generateAuroraHTML(resume: ResumeData): string {
       margin: 2pt 0;
       padding-left: 12pt;
       text-indent: -12pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .experience-item {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .education-item {
       margin-bottom: 9pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .section {
+      page-break-inside: auto;
+      break-inside: auto;
     }
     .education-dates {
       font-weight: 600;
