@@ -196,25 +196,23 @@ function generateResumeHTML(resume: ResumeData): string {
       font-size: 10pt;
       margin-top: 5pt;
       color: #444;
-      page-break-inside: avoid;
-      break-inside: avoid;
     }
     .description ul {
       margin: 5pt 0;
       padding-left: 20pt;
-      page-break-inside: avoid;
-      break-inside: avoid;
     }
     .description li {
       margin: 3pt 0;
       page-break-inside: avoid;
       break-inside: avoid;
     }
-    .experience-item, .education-item {
+    .experience-header {
       page-break-inside: avoid;
       break-inside: avoid;
+      page-break-after: avoid;
+      break-after: avoid;
     }
-    .experience-item > * {
+    .education-item {
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -277,8 +275,8 @@ function generateResumeHTML(resume: ResumeData): string {
     <div class="section">
       <h2>Experience</h2>
       ${experiences.map(exp => `
-        <div class="experience-item" style="page-break-inside: avoid; break-inside: avoid;">
-          <div class="experience-header">
+        <div class="experience-item">
+          <div class="experience-header" style="page-break-inside: avoid; break-inside: avoid; page-break-after: avoid; break-after: avoid;">
             <div style="flex: 1; min-width: 0;">
               <div class="company">${escapeHtml(exp.position || '')}</div>
               <div class="position">${escapeHtml(exp.company || '')}</div>
@@ -288,9 +286,9 @@ function generateResumeHTML(resume: ResumeData): string {
             </div>
           </div>
           ${exp.description && exp.description.length > 0 ? `
-            <div class="description" style="page-break-inside: avoid; break-inside: avoid;">
+            <div class="description">
               ${Array.isArray(exp.description) 
-                ? `<ul style="list-style: none; padding-left: 0; margin: 5pt 0; page-break-inside: avoid; break-inside: avoid;">${exp.description.map(d => `<li style="margin: 3pt 0; padding-left: 12pt; text-indent: -12pt; page-break-inside: avoid; break-inside: avoid;">• ${escapeHtml(d)}</li>`).join('')}</ul>`
+                ? `<ul style="list-style: none; padding-left: 0; margin: 5pt 0;">${exp.description.map(d => `<li style="margin: 3pt 0; padding-left: 12pt; text-indent: -12pt; page-break-inside: avoid; break-inside: avoid;">• ${escapeHtml(d)}</li>`).join('')}</ul>`
                 : formatText(exp.description)}
             </div>
           ` : ''}
@@ -526,15 +524,11 @@ function generateAuroraHTML(resume: ResumeData): string {
       color: #444;
       margin-top: 6pt;
       line-height: 1.5;
-      page-break-inside: avoid;
-      break-inside: avoid;
     }
     .experience-description ul {
       list-style: none;
       padding-left: 0;
       margin: 4pt 0;
-      page-break-inside: avoid;
-      break-inside: avoid;
     }
     .experience-description li {
       margin: 2pt 0;
@@ -543,13 +537,11 @@ function generateAuroraHTML(resume: ResumeData): string {
       page-break-inside: avoid;
       break-inside: avoid;
     }
-    .experience-item {
+    .experience-header {
       page-break-inside: avoid;
       break-inside: avoid;
-    }
-    .experience-item > * {
-      page-break-inside: avoid;
-      break-inside: avoid;
+      page-break-after: avoid;
+      break-after: avoid;
     }
     .education-item {
       margin-bottom: 9pt;
@@ -624,8 +616,8 @@ function generateAuroraHTML(resume: ResumeData): string {
       <div class="section">
         <h2>Experience</h2>
         ${experiences.map(exp => `
-          <div class="experience-item" style="page-break-inside: avoid; break-inside: avoid;">
-            <div class="experience-header">
+          <div class="experience-item">
+            <div class="experience-header" style="page-break-inside: avoid; break-inside: avoid; page-break-after: avoid; break-after: avoid;">
               <div>
                 <div class="experience-position">${escapeHtml(exp.position || '')}</div>
                 <div class="experience-company">${escapeHtml(exp.company || '')}</div>
@@ -635,9 +627,9 @@ function generateAuroraHTML(resume: ResumeData): string {
               </div>
             </div>
             ${exp.description && exp.description.length > 0 ? `
-              <div class="experience-description" style="page-break-inside: avoid; break-inside: avoid;">
+              <div class="experience-description">
                 ${Array.isArray(exp.description) 
-                  ? `<ul style="page-break-inside: avoid; break-inside: avoid;">${exp.description.map(d => `<li style="page-break-inside: avoid; break-inside: avoid;">• ${escapeHtml(d)}</li>`).join('')}</ul>`
+                  ? `<ul>${exp.description.map(d => `<li style="page-break-inside: avoid; break-inside: avoid;">• ${escapeHtml(d)}</li>`).join('')}</ul>`
                   : formatText(exp.description)}
               </div>
             ` : ''}
