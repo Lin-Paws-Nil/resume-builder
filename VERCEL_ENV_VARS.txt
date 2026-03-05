@@ -1,0 +1,28 @@
+# Environment Variables for Vercel
+# Copy these when creating your new Vercel project
+
+NEXT_PUBLIC_SUPABASE_URL=https://uqluxzmmdsuejzjixido.supabase.co
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxbHV4em1tZHN1ZWp6aml4aWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4MDE2OTAsImV4cCI6MjA4MzM3NzY5MH0.pHquH649_bIoRbMFokABxd5VuoNVtK69hBeX8EGyEaY
+
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxbHV4em1tZHN1ZWp6aml4aWRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzgwMTY5MCwiZXhwIjoyMDgzMzc3NjkwfQ.GrzRJQ8jwEUB3UiQ28t9IJHo4GjYYn2ACiW0vNIYaSg
+
+NEXTAUTH_SECRET=ZTshMYVCF9gTWZBN54Wy7m+G2AcOyQTuLYxyHFhBPG8=
+
+# IMPORTANT: Set this to your Vercel deployment URL after creating the project
+# Example: NEXTAUTH_URL=https://resume-builder-abc123.vercel.app
+NEXTAUTH_URL=https://your-new-vercel-url.vercel.app
+
+OPENAI_API_KEY=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
+
+LINKEDIN_CLIENT_ID=86o15lej2r7k0o
+
+LINKEDIN_CLIENT_SECRET=WPL_AP1.3dkVRkFGeBQUidVZ.mjh8UQ==
+
+# Optional - use NEXTAUTH_SECRET if not set
+# LINKEDIN_IMPORT_SECRET=same-as-NEXTAUTH_SECRET
+
+# Stripe (optional - for future)
+# STRIPE_SECRET_KEY=
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+# STRIPE_WEBHOOK_SECRET=
