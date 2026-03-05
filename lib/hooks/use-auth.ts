@@ -20,16 +20,24 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(true);
   const router = useRouter();
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient()); // Create once, reuse
+  const supabase = supabaseRef.current;
   const checkingSession = useRef(false); // Prevent duplicate checks
+  const mounted = useRef(true); // Track if component is mounted
 
   useEffect(() => {
     console.log('[useAuth] 🚀 Initializing auth hook');
+    mounted.current = true;
     
     // Listen for auth changes - this handles ALL session management
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted.current) {
+        console.log('[useAuth] ⚠️ Component unmounted, ignoring auth change');
+        return;
+      }
+      
       console.log('[useAuth] 🔔 Auth state changed:', event, 'hasSession:', !!session);
       try {
         if (event === 'INITIAL_SESSION') {
@@ -59,13 +67,17 @@ export function useAuth() {
         }
       } catch (error) {
         console.error('[useAuth] ❌ Auth state change error:', error);
-        setLoading(false);
+        if (mounted.current) {
+          setLoading(false);
+        }
       }
     });
 
     // Set up session timeout check
     const timeoutInterval = setInterval(() => {
-      checkSessionTimeout();
+      if (mounted.current) {
+        checkSessionTimeout();
+      }
     }, 60000); // Check every minute
 
     // Activity tracking for session timeout
@@ -81,13 +93,15 @@ export function useAuth() {
     });
 
     return () => {
+      console.log('[useAuth] 🧹 Cleaning up auth hook');
+      mounted.current = false;
       subscription.unsubscribe();
       clearInterval(timeoutInterval);
       activityEvents.forEach((event) => {
         window.removeEventListener(event, updateActivity);
       });
     };
-  }, []);
+  }, [supabase]); // Add supabase as dependency
 
   const checkSession = async () => {
     console.log('[useAuth] checkSession called, checking lock...');
@@ -156,6 +170,11 @@ export function useAuth() {
   };
 
   const loadUserProfile = async (authUser: User) => {
+    if (!mounted.current) {
+      console.log('[useAuth] ⚠️ Component unmounted, skipping profile load');
+      return;
+    }
+    
     try {
       console.log('[useAuth] 📋 Loading profile for user:', authUser.id);
       console.log('[useAuth] ⏳ Querying profiles table...');
@@ -171,6 +190,11 @@ export function useAuth() {
           setTimeout(() => reject(new Error('Profile query timeout')), 3000)
         )
       ]);
+      
+      if (!mounted.current) {
+        console.log('[useAuth] ⚠️ Component unmounted after query, ignoring result');
+        return;
+      }
       
       const elapsed = Date.now() - startTime;
       console.log(`[useAuth] ✅ Profile query completed in ${elapsed}ms`);
@@ -207,6 +231,11 @@ export function useAuth() {
       setIsGuest(false);
       setLoading(false);
     } catch (error: any) {
+      if (!mounted.current) {
+        console.log('[useAuth] ⚠️ Component unmounted during error, ignoring');
+        return;
+      }
+      
       console.error('[useAuth] ❌ Profile loading EXCEPTION:', error);
       // Even on error/timeout, set basic user info so app can continue
       const userData = {
