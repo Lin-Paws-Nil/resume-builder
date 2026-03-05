@@ -87,6 +87,12 @@ export function useAuth() {
       return;
     }
     
+    // Skip if user is already loaded
+    if (user && !isGuest) {
+      console.log('[useAuth] User already loaded, skipping session check');
+      return;
+    }
+    
     checkingSession.current = true;
     
     try {
@@ -94,61 +100,37 @@ export function useAuth() {
       console.log('[useAuth] All cookies:', document.cookie);
       console.log('[useAuth] Cookie names:', document.cookie.split(';').map(c => c.trim().split('=')[0]));
       
-      // Use getUser() for JWT validation instead of getSession()
-      // getSession() only reads from storage, getUser() validates with server
-      console.log('[useAuth] Calling supabase.auth.getUser()...');
+      // Use getSession() for faster response (reads from cookies)
+      // getUser() validates with server but is slower and can timeout
+      console.log('[useAuth] Calling supabase.auth.getSession()...');
+      const { data: { session }, error } = await supabase.auth.getSession();
       
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('getUser() timeout after 5 seconds')), 5000);
-      });
-      
-      const getUserPromise = supabase.auth.getUser();
-      const result = await Promise.race([getUserPromise, timeoutPromise]) as any;
-      const { data: { user: authUser }, error } = result;
-      
-      console.log('[useAuth] getUser() COMPLETE');
+      console.log('[useAuth] getSession() COMPLETE');
       console.log('[useAuth] Result:', { 
-        hasUser: !!authUser, 
-        userId: authUser?.id,
-        userEmail: authUser?.email,
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
         hasError: !!error,
         errorMessage: error?.message,
-        errorName: error?.name,
-        errorStatus: error?.status,
       });
       
       if (error) {
-        console.error('[useAuth] getUser() ERROR DETAILS:', error);
+        console.error('[useAuth] getSession() ERROR:', error);
       }
       
-      if (error || !authUser) {
-        console.log('[useAuth] No valid user, setting as guest');
+      if (error || !session?.user) {
+        console.log('[useAuth] No valid session, setting as guest');
         setUser(null);
         setIsGuest(true);
         setLoading(false);
         return;
       }
 
-      console.log('[useAuth] Valid user found, loading profile...');
-      await loadUserProfile(authUser);
+      console.log('[useAuth] Valid session found, loading profile...');
+      await loadUserProfile(session.user);
     } catch (error: any) {
       console.error('[useAuth] Session check EXCEPTION:', error);
-      // On timeout or error, try using cached session data
-      if (error.message?.includes('timeout')) {
-        console.log('[useAuth] Timeout detected, using getSession() as fallback...');
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) {
-            console.log('[useAuth] Fallback successful, loading profile from session');
-            await loadUserProfile(session.user);
-            return;
-          }
-        } catch {
-          // Fallback failed
-        }
-      }
-      // Allow app to continue even if session check fails
       setUser(null);
       setIsGuest(true);
       setLoading(false);
