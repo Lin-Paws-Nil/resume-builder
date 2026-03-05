@@ -81,60 +81,67 @@ export function useAuth() {
   }, []);
 
   const checkSession = async () => {
+    console.log('[useAuth] checkSession called, checking lock...');
+    console.log('[useAuth] Lock status:', { checking: checkingSession.current, hasUser: !!user, isGuest });
+    
     // Prevent multiple simultaneous session checks
     if (checkingSession.current) {
-      console.log('[useAuth] Session check already in progress, skipping...');
+      console.log('[useAuth] ⚠️ Session check already in progress, SKIPPING');
       return;
     }
     
     // Skip if user is already loaded
     if (user && !isGuest) {
-      console.log('[useAuth] User already loaded, skipping session check');
+      console.log('[useAuth] ✅ User already loaded, SKIPPING session check');
       return;
     }
     
+    console.log('[useAuth] 🔒 Acquiring lock for session check...');
     checkingSession.current = true;
     
     try {
-      console.log('=== [useAuth] CHECKING SESSION ===');
+      console.log('=== [useAuth] CHECKING SESSION (LOCKED) ===');
       console.log('[useAuth] All cookies:', document.cookie);
       console.log('[useAuth] Cookie names:', document.cookie.split(';').map(c => c.trim().split('=')[0]));
       
       // Use getSession() for faster response (reads from cookies)
-      // getUser() validates with server but is slower and can timeout
-      console.log('[useAuth] Calling supabase.auth.getSession()...');
+      console.log('[useAuth] ⏳ Calling supabase.auth.getSession()...');
+      const startTime = Date.now();
       const { data: { session }, error } = await supabase.auth.getSession();
+      const elapsed = Date.now() - startTime;
       
-      console.log('[useAuth] getSession() COMPLETE');
+      console.log(`[useAuth] ✅ getSession() COMPLETE in ${elapsed}ms`);
       console.log('[useAuth] Result:', { 
         hasSession: !!session,
         hasUser: !!session?.user,
         userId: session?.user?.id,
         userEmail: session?.user?.email,
+        expiresAt: session?.expires_at,
         hasError: !!error,
         errorMessage: error?.message,
       });
       
       if (error) {
-        console.error('[useAuth] getSession() ERROR:', error);
+        console.error('[useAuth] ❌ getSession() ERROR:', error);
       }
       
       if (error || !session?.user) {
-        console.log('[useAuth] No valid session, setting as guest');
+        console.log('[useAuth] ❌ No valid session, setting as guest');
         setUser(null);
         setIsGuest(true);
         setLoading(false);
         return;
       }
 
-      console.log('[useAuth] Valid session found, loading profile...');
+      console.log('[useAuth] ✅ Valid session found, loading profile...');
       await loadUserProfile(session.user);
     } catch (error: any) {
-      console.error('[useAuth] Session check EXCEPTION:', error);
+      console.error('[useAuth] ❌ Session check EXCEPTION:', error);
       setUser(null);
       setIsGuest(true);
       setLoading(false);
     } finally {
+      console.log('[useAuth] 🔓 Releasing lock');
       checkingSession.current = false;
     }
   };
