@@ -152,6 +152,8 @@ export function useAuth() {
       setUser(null);
       setIsGuest(true);
       setLoading(false);
+    } finally {
+      checkingSession.current = false;
     }
   };
 
