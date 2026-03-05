@@ -24,32 +24,41 @@ export function useAuth() {
   const checkingSession = useRef(false); // Prevent duplicate checks
 
   useEffect(() => {
-    // Check initial session
-    checkSession();
-
-    // Listen for auth changes
+    console.log('[useAuth] 🚀 Initializing auth hook');
+    
+    // Listen for auth changes - this handles ALL session management
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('[useAuth] Auth state changed:', event, !!session);
+      console.log('[useAuth] 🔔 Auth state changed:', event, 'hasSession:', !!session);
       try {
-        if (event === 'SIGNED_IN' && session) {
+        if (event === 'INITIAL_SESSION') {
+          // Initial page load - check if session exists
+          if (session?.user) {
+            console.log('[useAuth] ✅ Initial session found, loading profile');
+            await loadUserProfile(session.user);
+          } else {
+            console.log('[useAuth] ❌ No initial session, setting as guest');
+            setUser(null);
+            setIsGuest(true);
+            setLoading(false);
+          }
+        } else if (event === 'SIGNED_IN' && session) {
+          console.log('[useAuth] ✅ User signed in, loading profile');
           await loadUserProfile(session.user);
           setLoading(false);
         } else if (event === 'SIGNED_OUT') {
+          console.log('[useAuth] 🚪 User signed out');
           setUser(null);
           setIsGuest(true);
           setLoading(false);
         } else if (event === 'TOKEN_REFRESHED' && session) {
-          await loadUserProfile(session.user);
-          setLoading(false);
-        } else if (event === 'INITIAL_SESSION' && session) {
-          // Handle initial session on page load
+          console.log('[useAuth] 🔄 Token refreshed, updating profile');
           await loadUserProfile(session.user);
           setLoading(false);
         }
       } catch (error) {
-        console.error('Auth state change error:', error);
+        console.error('[useAuth] ❌ Auth state change error:', error);
         setLoading(false);
       }
     });
