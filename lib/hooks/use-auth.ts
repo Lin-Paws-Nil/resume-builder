@@ -157,23 +157,38 @@ export function useAuth() {
 
   const loadUserProfile = async (authUser: User) => {
     try {
-      console.log('[useAuth] Loading profile for user:', authUser.id);
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('username, first_name, last_name, email')
-        .eq('id', authUser.id)
-        .single();
+      console.log('[useAuth] 📋 Loading profile for user:', authUser.id);
+      console.log('[useAuth] ⏳ Querying profiles table...');
+      
+      const startTime = Date.now();
+      const result = await Promise.race([
+        supabase
+          .from('profiles')
+          .select('username, first_name, last_name, email')
+          .eq('id', authUser.id)
+          .single(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile query timeout')), 3000)
+        )
+      ]);
+      
+      const elapsed = Date.now() - startTime;
+      console.log(`[useAuth] ✅ Profile query completed in ${elapsed}ms`);
+      
+      const { data: profile, error } = result as any;
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Profile load error:', error);
+        console.error('[useAuth] ⚠️ Profile load error:', error);
         // If profile doesn't exist, still allow user to proceed with basic info
-        setUser({
+        const userData = {
           id: authUser.id,
           email: authUser.email || '',
           username: undefined,
           firstName: undefined,
           lastName: undefined,
-        });
+        };
+        console.log('[useAuth] ℹ️ Using basic user info (no profile)');
+        setUser(userData);
         setIsGuest(false);
         setLoading(false);
         return;
@@ -187,20 +202,22 @@ export function useAuth() {
         lastName: profile?.last_name || undefined,
       };
       
-      console.log('[useAuth] User profile loaded, setting isGuest=false');
+      console.log('[useAuth] ✅ User profile loaded successfully, setting isGuest=false');
       setUser(userData);
       setIsGuest(false);
       setLoading(false);
-    } catch (error) {
-      console.error('Error loading profile:', error);
-      // Even on error, set basic user info so app can continue
-      setUser({
+    } catch (error: any) {
+      console.error('[useAuth] ❌ Profile loading EXCEPTION:', error);
+      // Even on error/timeout, set basic user info so app can continue
+      const userData = {
         id: authUser.id,
         email: authUser.email || '',
         username: undefined,
         firstName: undefined,
         lastName: undefined,
-      });
+      };
+      console.log('[useAuth] 🆘 Timeout/error - using basic auth user data');
+      setUser(userData);
       setIsGuest(false);
       setLoading(false);
     }
