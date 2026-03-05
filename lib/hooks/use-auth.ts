@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -21,6 +21,7 @@ export function useAuth() {
   const [isGuest, setIsGuest] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+  const checkingSession = useRef(false); // Prevent duplicate checks
 
   useEffect(() => {
     // Check initial session
@@ -80,6 +81,14 @@ export function useAuth() {
   }, []);
 
   const checkSession = async () => {
+    // Prevent multiple simultaneous session checks
+    if (checkingSession.current) {
+      console.log('[useAuth] Session check already in progress, skipping...');
+      return;
+    }
+    
+    checkingSession.current = true;
+    
     try {
       console.log('=== [useAuth] CHECKING SESSION ===');
       console.log('[useAuth] All cookies:', document.cookie);
