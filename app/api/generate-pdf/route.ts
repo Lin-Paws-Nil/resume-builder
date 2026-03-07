@@ -58,12 +58,12 @@ export async function POST(request: NextRequest) {
         format: 'A4',
         printBackground: true,
         margin: {
-          top: '0',
-          right: '0',
-          bottom: '0',
-          left: '0',
+          top: '20mm',
+          right: '20mm',
+          bottom: '20mm',
+          left: '20mm',
         },
-        preferCSSPageSize: true,
+        preferCSSPageSize: false,
       });
 
       await browser.close();
@@ -116,7 +116,7 @@ function generateResumeHTML(resume: ResumeData): string {
   <style>
     @page {
       size: A4;
-      margin: 0;
+      margin: 20mm;
     }
     * {
       margin: 0;
@@ -129,7 +129,7 @@ function generateResumeHTML(resume: ResumeData): string {
       line-height: 1.6;
       color: #333;
       margin: 0;
-      padding: 20mm;
+      padding: 0;
       background: white;
       orphans: 3;
       widows: 3;
@@ -426,7 +426,7 @@ function generateAuroraHTML(resume: ResumeData): string {
   <style>
     @page {
       size: A4;
-      margin: 0;
+      margin: 20mm;
     }
     * {
       margin: 0;
@@ -439,7 +439,7 @@ function generateAuroraHTML(resume: ResumeData): string {
       line-height: 1.6;
       color: #333;
       margin: 0;
-      padding: 20mm;
+      padding: 0;
       background: white;
       orphans: 3;
       widows: 3;
