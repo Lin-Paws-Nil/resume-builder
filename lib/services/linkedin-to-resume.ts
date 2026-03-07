@@ -37,6 +37,13 @@ export function mapOpenIDToResume(userInfo: OpenIDUserInfo): ResumeData {
     [userInfo.given_name, userInfo.family_name].filter(Boolean).join(' ') || 
     'Unknown';
   const email = userInfo.email || '';
+  
+  // Extract location from locale (e.g., "en-US" -> "US")
+  let location = '';
+  if (userInfo.locale && typeof userInfo.locale === 'string') {
+    const parts = userInfo.locale.split('-');
+    location = parts.length > 1 ? parts[1] : '';
+  }
 
   const now = new Date().toISOString();
   return {
@@ -46,7 +53,7 @@ export function mapOpenIDToResume(userInfo: OpenIDUserInfo): ResumeData {
       fullName,
       email,
       phone: '',
-      location: userInfo.locale ? userInfo.locale.split('-')[1] || '' : '',
+      location,
       linkedin: undefined, // OpenID doesn't provide vanityName
     },
     summary: '',
