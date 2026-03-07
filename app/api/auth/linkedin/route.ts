@@ -47,6 +47,13 @@ export async function GET(request: NextRequest) {
     const redirectUri = `${baseUrl}/api/auth/linkedin/callback`;
     const state = sign({ u: user.id }, secret);
 
+    console.log('LinkedIn OAuth Init:', {
+      baseUrl,
+      redirectUri,
+      clientId,
+      scope: SCOPE,
+    });
+
     const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
     authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('client_id', clientId);
@@ -54,6 +61,7 @@ export async function GET(request: NextRequest) {
     authUrl.searchParams.set('scope', SCOPE);
     authUrl.searchParams.set('state', state);
 
+    console.log('Redirecting to LinkedIn:', authUrl.toString());
     return NextResponse.redirect(authUrl.toString());
   } catch (e: unknown) {
     const msg = (e as Error)?.message;
