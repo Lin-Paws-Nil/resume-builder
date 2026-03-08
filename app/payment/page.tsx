@@ -122,23 +122,45 @@ function PaymentPageContent() {
 
       console.log('✅ Order created, opening Razorpay checkout...');
 
-      // Razorpay checkout options
+      // Get base URL for callback
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+
+      // Razorpay checkout options (matching official docs)
       const options = {
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
         name: 'Resume Builder',
         description: `${selectedPlan.name} Plan - ${selectedPlan.duration}`,
+        image: `${baseUrl}/logo.png`, // Your logo (optional)
         order_id: data.orderId,
+        callback_url: `${baseUrl}/payment/success?plan=${planId}&return=${encodeURIComponent(returnUrl)}`,
         prefill: {
+          name: user?.username || user?.email?.split('@')[0] || '',
           email: user?.email || '',
-          name: user?.username || '',
+          contact: '', // Phone number - can add if you collect it during signup
+        },
+        notes: {
+          plan_id: planId,
+          user_id: user?.id || '',
         },
         theme: {
           color: '#2563eb', // Blue-600
         },
+        modal: {
+          ondismiss: function () {
+            console.log('ℹ️ Payment modal dismissed by user');
+            setProcessing(false);
+          },
+        },
         handler: async function (response: any) {
           console.log('✅ Payment successful, verifying...');
+          console.log('Payment response:', {
+            payment_id: response.razorpay_payment_id,
+            order_id: response.razorpay_order_id,
+            signature: response.razorpay_signature?.substring(0, 20) + '...',
+          });
+          
           try {
             // Verify payment
             const verifyResponse = await fetch('/api/payment/razorpay/verify', {
@@ -170,12 +192,6 @@ function PaymentPageContent() {
             setProcessing(false);
           }
         },
-        modal: {
-          ondismiss: function () {
-            console.log('ℹ️ Payment modal dismissed by user');
-            setProcessing(false);
-          },
-        },
       };
 
       console.log('🚀 Opening Razorpay modal with options:', {
@@ -183,9 +199,32 @@ function PaymentPageContent() {
         amount: data.amount,
         currency: data.currency,
         order_id: data.orderId,
+        name: options.name,
+        description: options.description,
       });
 
       const razorpayInstance = new window.Razorpay(options);
+      
+      // Handle payment failures as per official docs
+      razorpayInstance.on('payment.failed', function (response: any) {
+        console.error('❌ Payment failed:', response.error);
+        console.error('Error details:', {
+          code: response.error.code,
+          description: response.error.description,
+          source: response.error.source,
+          step: response.error.step,
+          reason: response.error.reason,
+          order_id: response.error.metadata?.order_id,
+          payment_id: response.error.metadata?.payment_id,
+        });
+        
+        setError(
+          `Payment failed: ${response.error.description || response.error.reason}. ` +
+          `Please try again or contact support if issue persists.`
+        );
+        setProcessing(false);
+      });
+
       razorpayInstance.open();
     } catch (err: any) {
       console.error('❌ Payment error:', err);
