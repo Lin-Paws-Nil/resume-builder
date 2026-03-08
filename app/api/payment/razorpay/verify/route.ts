@@ -37,9 +37,43 @@ export async function POST(request: NextRequest) {
     // Create subscription in database
     const supabase = await createClient();
     
+    // Get authenticated user to ensure we use the correct user_id
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !authUser) {
+      console.error('Auth error during subscription creation:', authError);
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+    
+    // Ensure user has a profile entry (create if doesn't exist)
+    const { data: existingProfile, error: profileCheckError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', authUser.id)
+      .single();
+    
+    if (profileCheckError || !existingProfile) {
+      console.log('Creating profile for user:', authUser.id);
+      // Create profile if it doesn't exist
+      const { error: profileCreateError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: authUser.id,
+          email: authUser.email,
+          username: authUser.user_metadata?.username || authUser.email?.split('@')[0],
+        }, { onConflict: 'id' });
+      
+      if (profileCreateError) {
+        console.error('Profile creation error:', profileCreateError);
+      }
+    }
+    
     const calculateEndDate = (plan: PlanType): string => {
       const now = new Date();
-      const days = plan === 'weekly' ? 7 : plan === 'monthly' ? 30 : 365;
+      const days = plan === 'weekly' ? 7 : plan === 'monthly' ? 30 : plan === 'annual' ? 365 : 30;
       now.setDate(now.getDate() + days);
       return now.toISOString();
     };
@@ -47,7 +81,7 @@ export async function POST(request: NextRequest) {
     const { data: subscription, error: subscriptionError } = await supabase
       .from('subscriptions')
       .insert({
-        user_id: userId,
+        user_id: authUser.id, // Use authenticated user's ID
         plan: planId,
         is_active: true,
         start_date: new Date().toISOString(),

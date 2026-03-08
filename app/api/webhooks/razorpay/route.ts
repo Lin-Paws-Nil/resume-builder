@@ -42,9 +42,22 @@ export async function POST(request: NextRequest) {
         // Create subscription
         const supabase = createAdminClient();
         
+        // Ensure user has a profile entry (create if doesn't exist)
+        const { error: profileUpsertError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            email: payment.notes?.userEmail || '',
+            username: payment.notes?.userEmail?.split('@')[0] || 'user',
+          }, { onConflict: 'id' });
+        
+        if (profileUpsertError) {
+          console.error('Profile upsert error:', profileUpsertError);
+        }
+        
         const calculateEndDate = (plan: PlanType): string => {
           const now = new Date();
-          const days = plan === 'weekly' ? 7 : plan === 'monthly' ? 30 : 365;
+          const days = plan === 'weekly' ? 7 : plan === 'monthly' ? 30 : plan === 'annual' ? 365 : 30;
           now.setDate(now.getDate() + days);
           return now.toISOString();
         };
