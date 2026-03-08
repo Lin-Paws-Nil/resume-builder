@@ -39,16 +39,25 @@ function PaymentPageContent() {
     const detectedCurrency = detectUserCurrency();
     setCurrency(detectedCurrency);
 
-    // Load Razorpay script
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    script.onload = () => setRazorpayLoaded(true);
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
+    // Load Razorpay script only if not already loaded
+    if (!window.Razorpay) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('✅ Razorpay script loaded successfully');
+        setRazorpayLoaded(true);
+      };
+      script.onerror = () => {
+        console.error('❌ Failed to load Razorpay script');
+        setError('Failed to load payment gateway. Please refresh the page.');
+      };
+      document.body.appendChild(script);
+    } else {
+      // Razorpay already loaded
+      console.log('✅ Razorpay already available');
+      setRazorpayLoaded(true);
+    }
   }, []);
 
   // Redirect if not authenticated
@@ -78,10 +87,18 @@ function PaymentPageContent() {
 
   // Handle Razorpay payment
   const handleRazorpayPayment = async () => {
+    console.log('💳 Starting Razorpay payment process...');
     setProcessing(true);
     setError(null);
 
     try {
+      // Check if Razorpay is loaded
+      if (!window.Razorpay) {
+        throw new Error('Razorpay is not loaded. Please refresh the page.');
+      }
+
+      console.log('📦 Creating order...');
+      
       // Create order
       const response = await fetch('/api/payment/razorpay/create-order', {
         method: 'POST',
@@ -93,10 +110,17 @@ function PaymentPageContent() {
       });
 
       const data = await response.json();
+      console.log('📋 Order response:', { orderId: data.orderId, amount: data.amount, currency: data.currency });
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create order');
       }
+
+      if (!data.keyId) {
+        throw new Error('Razorpay Key ID not configured. Check NEXT_PUBLIC_RAZORPAY_KEY_ID in environment variables.');
+      }
+
+      console.log('✅ Order created, opening Razorpay checkout...');
 
       // Razorpay checkout options
       const options = {
@@ -114,6 +138,7 @@ function PaymentPageContent() {
           color: '#2563eb', // Blue-600
         },
         handler: async function (response: any) {
+          console.log('✅ Payment successful, verifying...');
           try {
             // Verify payment
             const verifyResponse = await fetch('/api/payment/razorpay/verify', {
@@ -129,28 +154,41 @@ function PaymentPageContent() {
             });
 
             const verifyData = await verifyResponse.json();
+            console.log('✅ Verification response:', verifyData);
 
             if (!verifyResponse.ok) {
               throw new Error(verifyData.error || 'Payment verification failed');
             }
 
+            console.log('🎉 Payment verified, redirecting to success...');
+            
             // Redirect to success page
             router.push(`/payment/success?plan=${planId}&return=${encodeURIComponent(returnUrl)}`);
           } catch (err: any) {
+            console.error('❌ Verification error:', err);
             setError(err.message || 'Payment verification failed');
             setProcessing(false);
           }
         },
         modal: {
           ondismiss: function () {
+            console.log('ℹ️ Payment modal dismissed by user');
             setProcessing(false);
           },
         },
       };
 
+      console.log('🚀 Opening Razorpay modal with options:', {
+        key: data.keyId.substring(0, 15) + '...',
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
+      });
+
       const razorpayInstance = new window.Razorpay(options);
       razorpayInstance.open();
     } catch (err: any) {
+      console.error('❌ Payment error:', err);
       setError(err.message || 'Payment failed. Please try again.');
       setProcessing(false);
     }
@@ -320,6 +358,16 @@ function PaymentPageContent() {
                 </>
               )}
             </Button>
+
+            {/* Debug Info - Remove after testing */}
+            {!razorpayLoaded && (
+              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800">
+                <p className="font-semibold mb-1">Debug Info:</p>
+                <p>• Razorpay script: {typeof window !== 'undefined' && window.Razorpay ? '✅ Loaded' : '⏳ Loading...'}</p>
+                <p>• API Key configured: {process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ? '✅ Yes' : '❌ No'}</p>
+                <p>Check browser console for more details</p>
+              </div>
+            )}
 
             {/* Payment Method Info */}
             <div className="mt-4 text-center">
