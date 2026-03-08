@@ -20,7 +20,7 @@ export function SubscriptionModal({ isOpen, onClose, type, onConfirm }: Subscrip
     if (type === 'login') {
       router.push(`/login?redirect=${encodeURIComponent('/builder')}`);
     } else {
-      router.push('/account?tab=payment');
+      router.push('/subscribe?return=' + encodeURIComponent('/builder'));
     }
     onClose();
     if (onConfirm) {

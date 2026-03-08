@@ -135,7 +135,7 @@ export function LinkedInImport() {
                   Import your resume from your LinkedIn profile. This feature is available on paid plans.
                 </p>
                 <Button
-                  onClick={() => router.push('/account?tab=payment')}
+                  onClick={() => router.push('/subscribe?return=' + encodeURIComponent('/builder'))}
                   className="bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   <Crown className="h-4 w-4 mr-2" />

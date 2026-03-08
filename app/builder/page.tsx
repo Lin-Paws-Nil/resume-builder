@@ -269,7 +269,7 @@ function BuilderPageContent() {
     if (!subscription?.canDownload) {
       const shouldUpgrade = confirm('PDF download requires an active subscription. Would you like to upgrade your plan?');
       if (shouldUpgrade) {
-        window.location.href = '/account?tab=payment';
+        router.push('/subscribe?return=' + encodeURIComponent('/builder'));
       }
       return;
     }

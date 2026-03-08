@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Upload,
@@ -9,22 +10,37 @@ import {
   ChevronDown,
   ChevronUp,
   Info,
+  Lock,
+  Crown,
 } from "lucide-react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/lib/types/resume";
 import { Notification } from "@/components/ui/notification";
+import { useAuth } from "@/lib/hooks/use-auth";
+import { useSubscription } from "@/lib/hooks/use-subscription";
 
 export function ResumeUpload() {
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const { setParsedResume } = useResumeStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, isGuest } = useAuth();
+  const { subscription } = useSubscription(user?.id || null);
+
+  const isPremium = !!(user && !isGuest && subscription?.canDownload);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check premium access
+    if (!isPremium) {
+      setError("This feature requires a premium subscription");
+      return;
+    }
 
     setUploading(true);
     setError(null);
@@ -222,6 +238,11 @@ export function ResumeUpload() {
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
             <h3 className="font-semibold">Upload Current Resume</h3>
+            {isPremium ? (
+              <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Premium</span>
+            ) : (
+              <Lock className="h-4 w-4 text-amber-600" />
+            )}
           </div>
           {isExpanded ? (
             <ChevronUp className="h-5 w-5" />
@@ -232,44 +253,76 @@ export function ResumeUpload() {
 
         {isExpanded && (
           <div className="px-4 pb-4 space-y-4">
-            <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-blue-800">
-                Upload your existing resume (PDF or DOCX) to automatically
-                extract and populate your information. This helps you avoid
-                typing everything from scratch and gets you started quickly!
-              </p>
-            </div>
-            <div className="border-2 border-dashed rounded-lg p-8 text-center">
-              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-4">
-                Upload PDF or DOCX file
-              </p>
-              <input
-                type="file"
-                accept=".pdf,.docx"
-                onChange={handleFileUpload}
-                disabled={uploading}
-                className="hidden"
-                id="resume-upload"
-                ref={fileInputRef}
-              />
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                variant="outline"
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Parsing...
-                  </>
-                ) : (
-                  "Choose File"
-                )}
-              </Button>
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {!user || isGuest ? (
+              <div className="p-4 rounded-lg border border-blue-200 bg-blue-50 space-y-3">
+                <p className="text-sm text-blue-900">
+                  This feature is only available for logged in users.
+                </p>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    window.location.href = '/login?redirect=' + encodeURIComponent('/builder');
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Log In
+                </Button>
+              </div>
+            ) : !isPremium ? (
+              <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 space-y-3">
+                <p className="text-sm text-amber-900">
+                  Upload your existing resume (PDF or DOCX) to automatically extract and populate your information. This feature is available on paid plans.
+                </p>
+                <Button
+                  onClick={() => router.push('/subscribe?return=' + encodeURIComponent('/builder'))}
+                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade to use
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-blue-800">
+                    Upload your existing resume (PDF or DOCX) to automatically
+                    extract and populate your information. This helps you avoid
+                    typing everything from scratch and gets you started quickly!
+                  </p>
+                </div>
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Upload PDF or DOCX file
+                  </p>
+                  <input
+                    type="file"
+                    accept=".pdf,.docx"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    className="hidden"
+                    id="resume-upload"
+                    ref={fileInputRef}
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    variant="outline"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Parsing...
+                      </>
+                    ) : (
+                      "Choose File"
+                    )}
+                  </Button>
+                </div>
+                {error && <p className="text-sm text-destructive">{error}</p>}
+              </>
+            )}
           </div>
         )}
       </div>
