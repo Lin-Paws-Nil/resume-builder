@@ -1,16 +1,32 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { FileText, Lock, Mail } from 'lucide-react';
-import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { SignInPage, Testimonial } from '@/components/ui/sign-in';
+
+const sampleTestimonials: Testimonial[] = [
+  {
+    avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
+    name: "Sarah Chen",
+    handle: "@sarahdigital",
+    text: "Best resume builder I've used! Landed my dream job in tech."
+  },
+  {
+    avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
+    name: "Marcus Johnson",
+    handle: "@marcustech",
+    text: "Clean design, powerful features. My resume looks incredibly professional now."
+  },
+  {
+    avatarSrc: "https://randomuser.me/api/portraits/women/32.jpg",
+    name: "Emma Martinez",
+    handle: "@emmacreates",
+    text: "Simple to use, beautiful templates. Got interviews within days of applying!"
+  },
+];
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -18,15 +34,16 @@ function LoginForm() {
   const message = searchParams.get('message');
   const redirect = searchParams.get('redirect');
 
-  // Removed session check - middleware already handles redirecting logged-in users
-  // This prevents double authentication checks and improves page load speed
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+
       const supabase = createClient();
 
       const { data, error: authError } = await supabase.auth.signInWithPassword({
@@ -41,7 +58,6 @@ function LoginForm() {
       }
 
       if (data.user) {
-        // Successfully logged in
         router.push(redirect || '/builder');
       }
     } catch (err: any) {
@@ -50,101 +66,51 @@ function LoginForm() {
     }
   };
 
+  const handleGoogleSignIn = () => {
+    console.log('Google sign-in clicked');
+  };
+
+  const handleResetPassword = () => {
+    router.push('/forgot-password');
+  };
+
+  const handleCreateAccount = () => {
+    router.push('/signup');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-              <FileText className="h-8 w-8 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">resumebuilder.io</h1>
-            <p className="text-gray-600">Sign in to your account</p>
-          </div>
-
-          {message && (
-            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm mb-4">
-              {message}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center space-y-2">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
-                Sign up
-              </Link>
-            </p>
-            <Link
-              href="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-700"
-            >
-              Forgot password?
-            </Link>
-          </div>
+    <>
+      {message && (
+        <div className="fixed top-4 right-4 z-50 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-xl">
+          {message}
         </div>
-      </div>
-    </div>
+      )}
+      {error && (
+        <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl">
+          {error}
+        </div>
+      )}
+      <SignInPage
+        title={<span className="font-light text-white tracking-tighter">Welcome Back</span>}
+        description="Sign in to continue building your professional resume"
+        heroImageSrc="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1920&q=80"
+        testimonials={sampleTestimonials}
+        onSignIn={handleSignIn}
+        onGoogleSignIn={handleGoogleSignIn}
+        onResetPassword={handleResetPassword}
+        onCreateAccount={handleCreateAccount}
+      />
+    </>
   );
 }
 
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-300">Loading...</p>
         </div>
       </div>
     }>

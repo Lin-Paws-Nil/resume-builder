@@ -125,3 +125,275 @@
   border-top: 1px solid #ccc;
   margin: 1em 0;
 }
+
+/* Sign-in page animations */
+@keyframes fadeSlideIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px);
+  }
+}
+
+@keyframes slideRightIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0px);
+  }
+}
+
+@keyframes testimonialIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px) scale(1);
+  }
+}
+
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeSlideIn 0.6s ease-out forwards;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.delay-1200 {
+  animation-delay: 1.2s;
+}
+
+.delay-1400 {
+  animation-delay: 1.4s;
+}
+
+/* Gradient Button Styles */
+@layer base {
+  @property --pos-x {
+    syntax: '<percentage>';
+    initial-value: 50%;
+    inherits: false;
+  }
+
+  @property --pos-y {
+    syntax: '<percentage>';
+    initial-value: 50%;
+    inherits: false;
+  }
+
+  @property --spread-x {
+    syntax: '<percentage>';
+    initial-value: 150%;
+    inherits: false;
+  }
+
+  @property --spread-y {
+    syntax: '<percentage>';
+    initial-value: 150%;
+    inherits: false;
+  }
+
+  @property --color-1 {
+    syntax: '<color>';
+    initial-value: #1e40af;
+    inherits: false;
+  }
+
+  @property --color-2 {
+    syntax: '<color>';
+    initial-value: #3b82f6;
+    inherits: false;
+  }
+
+  @property --color-3 {
+    syntax: '<color>';
+    initial-value: #60a5fa;
+    inherits: false;
+  }
+
+  @property --color-4 {
+    syntax: '<color>';
+    initial-value: #7c3aed;
+    inherits: false;
+  }
+
+  @property --color-5 {
+    syntax: '<color>';
+    initial-value: #a855f7;
+    inherits: false;
+  }
+
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 135deg;
+    inherits: true;
+  }
+
+  @property --border-color-1 {
+    syntax: '<color>';
+    initial-value: hsla(220, 75%, 70%, 0.3);
+    inherits: true;
+  }
+
+  @property --border-color-2 {
+    syntax: '<color>';
+    initial-value: hsla(270, 75%, 70%, 0.6);
+    inherits: true;
+  }
+
+  @property --stop-1 {
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+  }
+
+  @property --stop-2 {
+    syntax: '<percentage>';
+    initial-value: 20%;
+    inherits: false;
+  }
+
+  @property --stop-3 {
+    syntax: '<percentage>';
+    initial-value: 50%;
+    inherits: false;
+  }
+
+  @property --stop-4 {
+    syntax: '<percentage>';
+    initial-value: 80%;
+    inherits: false;
+  }
+
+  @property --stop-5 {
+    syntax: '<percentage>';
+    initial-value: 100%;
+    inherits: false;
+  }
+}
+
+@layer components {
+  .gradient-button {
+    @apply relative appearance-none cursor-pointer;
+    background: radial-gradient(
+      var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),
+      var(--color-1) var(--stop-1),
+      var(--color-2) var(--stop-2),
+      var(--color-3) var(--stop-3),
+      var(--color-4) var(--stop-4),
+      var(--color-5) var(--stop-5)
+    );
+    transition:
+      --pos-x 0.5s,
+      --pos-y 0.5s,
+      --spread-x 0.5s,
+      --spread-y 0.5s,
+      --color-1 0.5s,
+      --color-2 0.5s,
+      --color-3 0.5s,
+      --color-4 0.5s,
+      --color-5 0.5s,
+      --border-angle 0.5s,
+      --border-color-1 0.5s,
+      --border-color-2 0.5s,
+      --stop-1 0.5s,
+      --stop-2 0.5s,
+      --stop-3 0.5s,
+      --stop-4 0.5s,
+      --stop-5 0.5s;
+  }
+
+  .gradient-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+      var(--border-angle),
+      var(--border-color-1),
+      var(--border-color-2)
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .gradient-button:hover {
+    --pos-x: 100%;
+    --pos-y: 0%;
+    --spread-x: 130%;
+    --spread-y: 130%;
+    --color-1: #60a5fa;
+    --color-2: #3b82f6;
+    --color-3: #7c3aed;
+    --color-4: #a855f7;
+    --color-5: #1e40af;
+    --border-angle: 225deg;
+    --border-color-1: hsla(270, 75%, 80%, 0.4);
+    --border-color-2: hsla(220, 75%, 80%, 0.8);
+  }
+
+  .gradient-button-secondary {
+    --color-1: #1e3a8a;
+    --color-2: #2563eb;
+    --color-3: #3b82f6;
+    --color-4: #60a5fa;
+    --color-5: #93c5fd;
+    --border-angle: 180deg;
+    --border-color-1: hsla(220, 80%, 60%, 0.4);
+    --border-color-2: hsla(220, 80%, 70%, 0.3);
+  }
+
+  .gradient-button-secondary:hover {
+    --pos-x: 100%;
+    --pos-y: 0%;
+    --spread-x: 130%;
+    --spread-y: 130%;
+    --color-1: #60a5fa;
+    --color-2: #3b82f6;
+    --color-3: #7c3aed;
+    --color-4: #a855f7;
+    --color-5: #1e40af;
+    --border-angle: 225deg;
+    --border-color-1: hsla(270, 75%, 80%, 0.4);
+    --border-color-2: hsla(220, 75%, 80%, 0.8);
+  }
+
+  .gradient-button-green {
+    --color-1: #065f46;
+    --color-2: #059669;
+    --color-3: #10b981;
+    --color-4: #34d399;
+    --color-5: #6ee7b7;
+    --border-angle: 160deg;
+    --border-color-1: hsla(160, 80%, 60%, 0.4);
+    --border-color-2: hsla(160, 80%, 70%, 0.3);
+  }
+
+  .gradient-button-green:hover {
+    --pos-x: 100%;
+    --pos-y: 0%;
+    --spread-x: 130%;
+    --spread-y: 130%;
+    --color-1: #60a5fa;
+    --color-2: #3b82f6;
+    --color-3: #7c3aed;
+    --color-4: #a855f7;
+    --color-5: #1e40af;
+    --border-angle: 225deg;
+    --border-color-1: hsla(270, 75%, 80%, 0.4);
+    --border-color-2: hsla(220, 75%, 80%, 0.8);
+  }
+}
+
+/* Text Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}

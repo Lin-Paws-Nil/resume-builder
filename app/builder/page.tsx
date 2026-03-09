@@ -9,11 +9,16 @@ import { TemplateBar } from '@/components/resume/TemplateBar';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { useResumeStore } from '@/store/resume-store';
 import { Button } from '@/components/ui/button';
-import { Download, LogOut, Undo, Redo, Eye, GripVertical, User, Lock } from 'lucide-react';
+import { SparkleButton } from '@/components/ui/sparkle-button';
+import { Spinner } from '@/components/ui/spinner';
+import { Download, LogOut, Undo, Redo, Eye, GripVertical, User, Lock, FileText, ZoomIn, ZoomOut } from 'lucide-react';
+import { GradientButton } from '@/components/ui/gradient-button';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useSubscription } from '@/lib/hooks/use-subscription';
 import { SessionWarning } from '@/components/ui/session-warning';
 import { Notification } from '@/components/ui/notification';
+import { ToastProvider, showToast } from '@/components/ui/toast';
+import { useConfirmDialog } from '@/components/ui/confirm-dialog';
 import { createClient } from '@/lib/supabase/client';
 
 export const dynamic = 'force-dynamic';
@@ -35,6 +40,7 @@ function BuilderPageContent() {
   
   const { user, loading: authLoading, isGuest, signOut } = useAuth();
   const { subscription, loading: subLoading } = useSubscription(user?.id || null);
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   
   const [isDownloading, setIsDownloading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -44,11 +50,24 @@ function BuilderPageContent() {
   const [sessionTimeRemaining, setSessionTimeRemaining] = useState(0);
   const [notification, setNotification] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [forceRender, setForceRender] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const resizeRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabaseRef = useRef(createClient());
   const supabase = supabaseRef.current;
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 10, 150));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 10, 50));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(100);
+  };
 
   // Load profile picture from Supabase
   const loadProfilePicture = useCallback(async () => {
@@ -252,22 +271,42 @@ function BuilderPageContent() {
 
   const handleDownload = async () => {
     if (!resume) {
-      alert('No resume data to download. Please add some content first.');
+      showToast({
+        title: 'No Resume Data',
+        description: 'Please add some content first.',
+        type: 'error'
+      });
       return;
     }
 
     // Check if user is logged in
     if (isGuest || !user) {
-      const shouldLogin = confirm('You need to log in to download your resume. Would you like to go to the login page?');
+      const shouldLogin = await confirm({
+        title: 'Login Required',
+        description: 'You need to log in to download your resume. Would you like to go to the login page?',
+        confirmText: 'Go to Login',
+        cancelText: 'Not now',
+        type: 'info',
+        confirmVariant: 'default',
+      });
+      
       if (shouldLogin) {
-        window.location.href = '/login?redirect=' + encodeURIComponent('/builder');
+        window.open('/login?redirect=' + encodeURIComponent('/builder'), '_blank');
       }
       return;
     }
 
     // Check subscription
     if (!subscription?.canDownload) {
-      const shouldUpgrade = confirm('PDF download requires an active subscription. Would you like to upgrade your plan?');
+      const shouldUpgrade = await confirm({
+        title: 'Premium Feature',
+        description: 'PDF download requires an active subscription. Would you like to upgrade your plan?',
+        confirmText: 'Upgrade Now',
+        cancelText: 'Maybe later',
+        type: 'warning',
+        confirmVariant: 'green',
+      });
+      
       if (shouldUpgrade) {
         router.push('/subscribe?return=' + encodeURIComponent('/builder'));
       }
@@ -285,7 +324,11 @@ function BuilderPageContent() {
       setNotification({ message: 'Resume downloaded successfully!', type: 'success' });
     } catch (error: any) {
       console.error('Download error:', error);
-      setNotification({ message: error.message || 'Failed to download resume. Please try again.', type: 'error' });
+      showToast({ 
+        title: 'Download Failed', 
+        description: error.message || 'Failed to download resume. Please try again.', 
+        type: 'error' 
+      });
     } finally {
       setIsDownloading(false);
     }
@@ -296,14 +339,23 @@ function BuilderPageContent() {
       setResume(parsedResume);
       setPreviewResume(parsedResume);
       setParsedResume(null);
+      showToast({ 
+        title: 'Applied!', 
+        description: 'Imported resume has been applied', 
+        type: 'success' 
+      });
     } else if (resume) {
       setPreviewResume(resume);
-      saveResume(); // Save to localStorage
+      saveResume();
       
-      // Also save to Supabase if user is logged in
       if (user) {
         await saveResumeToSupabase();
       }
+      showToast({ 
+        title: 'Saved!', 
+        description: 'Resume saved successfully', 
+        type: 'success' 
+      });
     }
   };
 
@@ -368,20 +420,19 @@ function BuilderPageContent() {
   // If loading takes too long, render anyway (graceful degradation)
   if ((authLoading || subLoading) && !forceRender) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-          <p className="text-xs text-gray-400 mt-2">If this takes too long, check the browser console</p>
+          <Spinner size={48} className="mx-auto mb-4" />
+          <p className="text-gray-600">Loading builder...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-white">
       {/* Debug Panel - Always visible */}
-      <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-xs font-mono z-50">
+      <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-xs font-mono z-50 relative">
         <strong>DEBUG:</strong> User: {user ? `✅ ${user.email}` : '❌ null'} | 
         IsGuest: {isGuest ? '❌ TRUE' : '✅ FALSE'} | 
         AuthLoading: {authLoading ? 'YES' : 'NO'} | 
@@ -401,7 +452,7 @@ function BuilderPageContent() {
 
 
       {/* Header */}
-      <header className="border-b bg-white px-6 py-4">
+      <header className="border-b border-gray-200 bg-white px-6 py-4 relative z-40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -426,23 +477,28 @@ function BuilderPageContent() {
                 <User className="h-5 w-5 text-gray-600" />
               )}
             </Button>
-            <h1 className="text-2xl font-bold text-blue-600">resumebuilder.io</h1>
-            <span className="text-sm text-gray-500">|</span>
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-xl">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900">resumebuilder.io</h1>
+            </div>
+            <span className="text-sm text-gray-400">|</span>
             <span className="text-sm text-gray-600">Resume Builder</span>
             {isGuest && (
-              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full border border-yellow-300">
                 Guest Mode
               </span>
             )}
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 border-r pr-3 mr-1">
+            <div className="flex items-center gap-1 border-r border-gray-200 pr-3 mr-1">
               <Button
                 onClick={undo}
                 disabled={!isMounted || !canUndo()}
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 title="Undo"
               >
                 <Undo className="h-4 w-4" />
@@ -452,22 +508,21 @@ function BuilderPageContent() {
                 disabled={!isMounted || !canRedo()}
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 title="Redo"
               >
                 <Redo className="h-4 w-4" />
               </Button>
             </div>
-            <Button
+            <GradientButton
               onClick={handleDownload}
               disabled={!isMounted || isDownloading || !resume}
-              variant="default"
-              className="min-w-[120px] bg-blue-600 hover:bg-blue-700"
+              className="px-6 py-2.5 text-sm min-w-[140px]"
               title={isGuest ? 'Log in to download' : !subscription?.canDownload ? 'Upgrade to download' : 'Download PDF'}
             >
               {isDownloading ? (
                 <>
-                  <span className="animate-spin mr-2">⏳</span>
+                  <Spinner size={16} invert className="mr-2" />
                   Downloading...
                 </>
               ) : (
@@ -476,36 +531,30 @@ function BuilderPageContent() {
                   Download PDF
                 </>
               )}
-            </Button>
+            </GradientButton>
             {user && !isGuest && (
-              <Button
+              <GradientButton
                 onClick={signOut}
-                variant="ghost"
-                className="text-gray-600 hover:text-gray-800"
+                variant="secondary"
+                className="px-4 py-2 text-sm min-w-[100px]"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
-              </Button>
+              </GradientButton>
             )}
             {(!user || isGuest) && (
-              <Button
+              <GradientButton
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('=== LOGIN BUTTON CLICKED ===');
-                  console.log('User:', user);
-                  console.log('IsGuest:', isGuest);
-                  console.log('AuthLoading:', authLoading);
-                  console.log('==========================');
-                  alert('Login button clicked! Check console for details.');
                   window.location.href = '/login?redirect=' + encodeURIComponent('/builder');
                 }}
-                variant="outline"
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                variant="secondary"
+                className="px-4 py-2 text-sm min-w-[100px]"
               >
                 Log In
-              </Button>
+              </GradientButton>
             )}
           </div>
         </div>
@@ -516,31 +565,68 @@ function BuilderPageContent() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative">
-        <div className="flex-1 flex items-center justify-center bg-gray-50 overflow-hidden" style={{ marginLeft: `${leftPanelWidth}px` }}>
-          <div className="bg-white shadow-lg overflow-auto" style={{ width: '210mm', height: '100%' }}>
-            <ResumePreview />
+        <div className="flex-1 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 overflow-auto relative" style={{ marginLeft: `${leftPanelWidth}px` }}>
+          <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] opacity-20 pointer-events-none"></div>
+          <div className="min-h-full flex items-start justify-center py-8 relative z-10">
+            <div 
+              className="bg-white shadow-2xl" 
+              style={{ 
+                width: '210mm',
+                transform: `scale(${zoomLevel / 100})`,
+                transformOrigin: 'top center',
+                transition: 'transform 0.3s ease-out'
+              }}
+            >
+              <ResumePreview />
+            </div>
+          </div>
+
+          {/* Zoom Controls - Bottom Right */}
+          <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-20">
+            <button
+              onClick={handleZoomIn}
+              disabled={zoomLevel >= 150}
+              className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+              title="Zoom In"
+            >
+              <ZoomIn className="h-5 w-5" />
+            </button>
+            <button
+              onClick={handleResetZoom}
+              className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 rounded-full px-3 py-2 shadow-lg hover:shadow-xl transition-all duration-200 text-xs font-semibold border border-gray-200"
+              title="Reset Zoom"
+            >
+              {zoomLevel}%
+            </button>
+            <button
+              onClick={handleZoomOut}
+              disabled={zoomLevel <= 50}
+              className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+              title="Zoom Out"
+            >
+              <ZoomOut className="h-5 w-5" />
+            </button>
           </div>
         </div>
 
         <div 
-          className="bg-white overflow-hidden flex flex-col border-r shadow-xl absolute left-0 top-0 bottom-0 z-10"
+          className="bg-white overflow-hidden flex flex-col border-r border-gray-200 shadow-xl absolute left-0 top-0 bottom-0 z-10"
           style={{ width: `${leftPanelWidth}px`, minWidth: '250px' }}
         >
-          <div className="p-4 border-b space-y-0">
+          <div className="p-4 border-b border-gray-200 space-y-0">
             <ResumeUpload />
             <LinkedInImport />
           </div>
           
-          <div className="px-4 py-4 bg-green-50 shadow-sm">
-            <Button
+          <div className="px-4 py-4 bg-gradient-to-br from-blue-50 to-purple-50 border-b border-gray-200">
+            <SparkleButton
               onClick={handlePreviewAndSave}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md py-2.5"
+              className="w-full text-sm px-3 py-1.5"
             >
-              <Eye className="h-4 w-4 mr-2" />
               Preview and Save
-            </Button>
+            </SparkleButton>
             {parsedResume && (
-              <p className="text-xs text-green-700 mt-2 text-center font-medium">
+              <p className="text-xs text-blue-700 mt-2 text-center font-medium">
                 Click to apply the imported resume to your editor
               </p>
             )}
@@ -576,6 +662,9 @@ function BuilderPageContent() {
           type={notification.type || 'success'}
         />
       )}
+      
+      <ToastProvider />
+      <ConfirmDialog />
     </div>
   );
 }
@@ -583,10 +672,10 @@ function BuilderPageContent() {
 export default function BuilderPage() {
   return (
     <Suspense fallback={
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <Spinner size={48} className="mx-auto mb-4" />
+          <p className="text-gray-600">Loading builder...</p>
         </div>
       </div>
     }>

@@ -153,19 +153,6 @@ export function ResumePreview() {
                   <TemplateComponent resume={previewResume} />
                 </div>
               </div>
-
-              {/* Page number */}
-              {pages > 1 && (
-                <div
-                  className="absolute text-xs text-gray-400"
-                  style={{
-                    bottom: `${PAGE_PADDING_MM / 2}mm`,
-                    right: `${PAGE_PADDING_MM}mm`,
-                  }}
-                >
-                  Page {pageIndex + 1} of {pages}
-                </div>
-              )}
             </div>
           );
         })}
