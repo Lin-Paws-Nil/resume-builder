@@ -224,10 +224,18 @@ function generateResumeHTML(resume: ResumeData): string {
       default:
         const customSection = resume.customSections?.find(s => s.id === sectionId);
         if (customSection) {
+          const contentHTML = typeof customSection.content === 'string' 
+            ? formatText(customSection.content)
+            : Array.isArray(customSection.content) && customSection.content.length > 0
+              ? typeof customSection.content[0] === 'string'
+                ? `<ul style="list-style: none; padding-left: 0; margin: 5pt 0;">${(customSection.content as string[]).map(item => `<li style="margin: 3pt 0; padding-left: 12pt; text-indent: -12pt;">• ${escapeHtml(item)}</li>`).join('')}</ul>`
+                : (customSection.content as Array<{ label: string; value: string }>).map(item => `<div style="margin-bottom: 4pt;"><strong>${escapeHtml(item.label)}:</strong> ${escapeHtml(item.value)}</div>`).join('')
+              : '';
+          
           return `
     <div class="section">
-      <h2>${escapeHtml(customSection.title)}</h2>
-      <div class="description">${formatText(customSection.content || '')}</div>
+      <h2>${escapeHtml(customSection.name)}</h2>
+      <div class="description">${contentHTML}</div>
     </div>
     `;
         }
