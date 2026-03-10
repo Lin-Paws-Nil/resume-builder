@@ -3,17 +3,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Settings, LayoutDashboard, CreditCard, LogOut, Camera, User, FileText, ArrowLeft } from 'lucide-react';
+import { Settings, LayoutDashboard, CreditCard, LogOut, Camera, User, FileText, ArrowLeft, AlertCircle } from 'lucide-react';
 import { AccountSettings } from '@/components/account/AccountSettings';
 import { Dashboard } from '@/components/account/Dashboard';
 import { PaymentInfo } from '@/components/account/PaymentInfo';
 import { SubscriptionUpgrade } from '@/components/account/SubscriptionUpgrade';
+import { ReportIssue } from '@/components/account/ReportIssue';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useSubscription } from '@/lib/hooks/use-subscription';
 import { createClient } from '@/lib/supabase/client';
 import { PLANS } from '@/lib/types/subscription';
+import { ToastProvider } from '@/components/ui/toast';
 
-type TabType = 'settings' | 'dashboard' | 'payment';
+type TabType = 'settings' | 'dashboard' | 'payment' | 'report';
 
 export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -123,10 +125,12 @@ export default function AccountPage() {
     { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'settings' as TabType, label: 'Account Settings', icon: Settings },
     { id: 'payment' as TabType, label: 'Plan Information', icon: CreditCard },
+    { id: 'report' as TabType, label: 'Report an Issue', icon: AlertCircle },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 relative overflow-hidden">
+      <ToastProvider />
       {/* Animated background grid */}
       <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] opacity-20"></div>
       
@@ -265,6 +269,7 @@ export default function AccountPage() {
                 }}
               />
             )}
+            {activeTab === 'report' && <ReportIssue />}
           </div>
         </main>
       </div>
