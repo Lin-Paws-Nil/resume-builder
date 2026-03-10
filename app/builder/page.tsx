@@ -457,15 +457,13 @@ function BuilderPageContent() {
           <div className="flex items-center gap-4">
             <Button
               onClick={() => {
-                if (isGuest || !user) {
-                  window.location.href = '/login?redirect=' + encodeURIComponent('/account');
-                  return;
-                }
+                // TEMPORARY: Direct navigation to /account without auth check
+                // TODO: Revert this - restore auth check before deployment
                 router.push('/account');
               }}
               variant="ghost"
               className="h-10 w-10 p-0 rounded-full hover:bg-gray-100"
-              title={isGuest ? 'Log in to access profile' : 'Profile'}
+              title="Profile"
             >
               {profilePicture ? (
                 <img

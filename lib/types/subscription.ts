@@ -78,7 +78,7 @@ export const PLANS: Record<PlanType, SubscriptionPlan> = {
     id: 'annual',
     name: 'Annual',
     description: 'Full access for 365 days - Best Value',
-    price: '₹3,200',
+    price: '₹1,500',
     duration: '365 days',
     features: [
       'Unlimited PDF downloads',

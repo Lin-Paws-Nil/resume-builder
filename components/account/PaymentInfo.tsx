@@ -32,7 +32,7 @@ export function PaymentInfo() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Methods</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Methods</h2>
         <p className="text-sm text-gray-600 mb-6">
           Add and manage your payment methods for seamless transactions.
         </p>
@@ -44,33 +44,33 @@ export function PaymentInfo() {
           onClick={() => setPaymentMethod('card')}
           className={`flex-1 p-4 border-2 rounded-lg transition-all ${
             paymentMethod === 'card'
-              ? 'border-blue-600 bg-blue-50'
-              : 'border-gray-200 hover:border-gray-300'
+              ? 'border-indigo-500 bg-indigo-50 shadow-md'
+              : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
           }`}
         >
           <div className="flex items-center justify-center gap-2 mb-2">
-            <CreditCard className="h-5 w-5" />
-            <span className="font-medium">Credit/Debit Card</span>
+            <CreditCard className={`h-5 w-5 ${paymentMethod === 'card' ? 'text-indigo-600' : 'text-gray-600'}`} />
+            <span className={`font-medium ${paymentMethod === 'card' ? 'text-indigo-900' : 'text-gray-700'}`}>Credit/Debit Card</span>
           </div>
         </button>
         <button
           onClick={() => setPaymentMethod('upi')}
           className={`flex-1 p-4 border-2 rounded-lg transition-all ${
             paymentMethod === 'upi'
-              ? 'border-blue-600 bg-blue-50'
-              : 'border-gray-200 hover:border-gray-300'
+              ? 'border-indigo-500 bg-indigo-50 shadow-md'
+              : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
           }`}
         >
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Smartphone className="h-5 w-5" />
-            <span className="font-medium">UPI</span>
+            <Smartphone className={`h-5 w-5 ${paymentMethod === 'upi' ? 'text-indigo-600' : 'text-gray-600'}`} />
+            <span className={`font-medium ${paymentMethod === 'upi' ? 'text-indigo-900' : 'text-gray-700'}`}>UPI</span>
           </div>
         </button>
       </div>
 
       {/* Card Payment Form */}
       {paymentMethod === 'card' && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
           <form onSubmit={handleCardSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -86,7 +86,7 @@ export function PaymentInfo() {
                     setCardData({ ...cardData, cardNumber: e.target.value })
                   }
                   maxLength={19}
-                  className="pl-10"
+                  className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                   required
                 />
               </div>
@@ -103,6 +103,7 @@ export function PaymentInfo() {
                 onChange={(e) =>
                   setCardData({ ...cardData, cardholderName: e.target.value })
                 }
+                className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                 required
               />
             </div>
@@ -120,6 +121,7 @@ export function PaymentInfo() {
                     setCardData({ ...cardData, expiryDate: e.target.value })
                   }
                   maxLength={5}
+                  className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                   required
                 />
               </div>
@@ -131,6 +133,7 @@ export function PaymentInfo() {
                   value={cardData.cvv}
                   onChange={(e) => setCardData({ ...cardData, cvv: e.target.value })}
                   maxLength={4}
+                  className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                   required
                 />
               </div>
@@ -142,7 +145,10 @@ export function PaymentInfo() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Button 
+                type="submit" 
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30"
+              >
                 Save Card
               </Button>
             </div>
@@ -152,7 +158,7 @@ export function PaymentInfo() {
 
       {/* UPI Payment Form */}
       {paymentMethod === 'upi' && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
           <form onSubmit={handleUpiSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -165,7 +171,7 @@ export function PaymentInfo() {
                   placeholder="yourname@paytm or yourname@phonepe"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                   required
                 />
               </div>
@@ -180,7 +186,10 @@ export function PaymentInfo() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Button 
+                type="submit" 
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30"
+              >
                 Save UPI ID
               </Button>
             </div>
@@ -189,14 +198,14 @@ export function PaymentInfo() {
       )}
 
       {/* Payment Methods Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <Check className="h-5 w-5 text-blue-600 mt-0.5" />
+          <Check className="h-5 w-5 text-indigo-600 mt-0.5" />
           <div>
-            <h3 className="text-sm font-semibold text-blue-900 mb-1">
+            <h3 className="text-sm font-semibold text-indigo-900 mb-1">
               Secure Payment Processing
             </h3>
-            <p className="text-xs text-blue-700">
+            <p className="text-xs text-indigo-700">
               We use industry-standard encryption to protect your payment information. All
               transactions are processed securely through our payment partners.
             </p>

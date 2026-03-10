@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { FileText, Plus, Edit, Trash2, Download, Tag, Calendar, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { ResumeData } from '@/lib/types/resume';
+import { ResumeDataTable } from '@/components/ui/resume-data-table';
 
 interface SavedResume extends ResumeData {
   bucket?: string;
@@ -79,13 +80,13 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Sub-tabs */}
+      {/* Sub-tabs - White on Active */}
       <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveSubTab('resume')}
           className={`px-6 py-3 text-sm font-medium transition-colors ${
             activeSubTab === 'resume'
-              ? 'text-blue-600 border-b-2 border-blue-600'
+              ? 'text-white bg-indigo-600 border-b-2 border-indigo-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -98,7 +99,7 @@ export function Dashboard() {
           onClick={() => setActiveSubTab('cover-letters')}
           className={`px-6 py-3 text-sm font-medium transition-colors ${
             activeSubTab === 'cover-letters'
-              ? 'text-blue-600 border-b-2 border-blue-600'
+              ? 'text-white bg-indigo-600 border-b-2 border-indigo-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -110,7 +111,7 @@ export function Dashboard() {
       </div>
 
       {activeSubTab === 'resume' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Actions Bar */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
@@ -120,16 +121,16 @@ export function Dashboard() {
                   placeholder="Search resumes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                 />
               </div>
               <select
                 value={selectedBucket}
                 onChange={(e) => setSelectedBucket(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:bg-gray-100 transition-colors"
               >
                 {buckets.map((bucket) => (
-                  <option key={bucket} value={bucket}>
+                  <option key={bucket} value={bucket} className="bg-white text-gray-900">
                     {bucket === 'all' ? 'All Buckets' : bucket}
                   </option>
                 ))}
@@ -137,7 +138,7 @@ export function Dashboard() {
             </div>
             <Button
               onClick={() => router.push('/builder')}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Resume
@@ -146,122 +147,31 @@ export function Dashboard() {
 
           {/* Resumes Table */}
           {filteredResumes.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-4">No resumes found</p>
               <Button
                 onClick={() => router.push('/builder')}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Resume
               </Button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Title
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Bucket
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Updated
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredResumes.map((resume) => (
-                    <tr key={resume.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-900">
-                            {resume.title || 'Untitled Resume'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-900">
-                          {resume.personalInfo?.fullName || 'N/A'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <select
-                          value={resume.bucket || ''}
-                          onChange={(e) => handleUpdateBucket(resume.id, e.target.value)}
-                          className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <option value="">Select bucket</option>
-                          {buckets
-                            .filter((b) => b !== 'all')
-                            .map((bucket) => (
-                              <option key={bucket} value={bucket}>
-                                {bucket}
-                              </option>
-                            ))}
-                        </select>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          {resume.createdAt
-                            ? new Date(resume.createdAt).toLocaleDateString()
-                            : 'N/A'}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          {resume.updatedAt
-                            ? new Date(resume.updatedAt).toLocaleDateString()
-                            : 'N/A'}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(resume)}
-                            title="Edit"
-                          >
-                            <Edit className="h-4 w-4 text-blue-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(resume.id)}
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ResumeDataTable
+              resumes={filteredResumes}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onUpdateBucket={handleUpdateBucket}
+              buckets={buckets}
+            />
           )}
         </div>
       )}
 
       {activeSubTab === 'cover-letters' && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
           <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600">Cover letters feature coming soon!</p>
         </div>
