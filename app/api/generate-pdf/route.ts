@@ -89,8 +89,6 @@ export async function POST(request: NextRequest) {
 }
 
 function generateResumeHTML(resume: ResumeData): string {
-  // Generate HTML that matches the template style
-  // Uses the templateId to apply appropriate styling
   const templateId = resume.templateId || 'hyperion';
   const personalInfo = resume.personalInfo || {};
   const experiences = resume.experiences || [];
@@ -99,14 +97,143 @@ function generateResumeHTML(resume: ResumeData): string {
   const projects = resume.projects || [];
   const certifications = resume.certifications || [];
   const hobbies = resume.hobbies || [];
+  const sectionOrder = resume.sectionOrder || ['summary', 'experiences', 'education', 'skills', 'projects', 'certifications', 'hobbies'];
+  const sectionNames = resume.sectionNames || {};
 
-  // Handle Aurora template separately (has unique 3-column layout)
   if (templateId === 'aurora') {
     return generateAuroraHTML(resume);
   }
 
-  // Template-specific styles
   const templateStyles = getTemplateStyles(templateId);
+
+  const getSectionHTML = (sectionId: string): string => {
+    const displayName = sectionNames[sectionId] || getSectionDefaultName(sectionId);
+    
+    switch (sectionId) {
+      case 'summary':
+        return resume.summary ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      <div class="description">${formatText(resume.summary)}</div>
+    </div>
+    ` : '';
+
+      case 'experiences':
+        return experiences.length > 0 ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      ${experiences.map(exp => `
+        <div class="experience-item">
+          <div class="experience-header" style="page-break-inside: avoid; break-inside: avoid; page-break-after: avoid; break-after: avoid;">
+            <div style="flex: 1; min-width: 0;">
+              <div class="company">${escapeHtml(exp.position || '')}</div>
+              <div class="position">${escapeHtml(exp.company || '')}</div>
+            </div>
+            <div class="date" style="white-space: nowrap; flex-shrink: 0;">
+              ${escapeHtml(exp.startDate || '')} – ${exp.current ? 'Current' : escapeHtml(exp.endDate || '')}
+            </div>
+          </div>
+          ${exp.description && exp.description.length > 0 ? `
+            <div class="description">
+              ${Array.isArray(exp.description) 
+                ? `<ul style="list-style: none; padding-left: 0; margin: 5pt 0;">${exp.description.map(d => `<li style="margin: 3pt 0; padding-left: 12pt; text-indent: -12pt; page-break-inside: avoid; break-inside: avoid;">• ${escapeHtml(d)}</li>`).join('')}</ul>`
+                : formatText(exp.description)}
+            </div>
+          ` : ''}
+        </div>
+      `).join('')}
+    </div>
+    ` : '';
+
+      case 'education':
+        return education.length > 0 ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      ${education.map(edu => `
+        <div class="education-item" style="page-break-inside: avoid; break-inside: avoid;">
+          <div class="institution" style="font-weight: bold; font-size: 11pt; margin-bottom: 2pt;">
+            ${escapeHtml(edu.degree || '')}${edu.field ? ` in ${escapeHtml(edu.field)}` : ''}
+          </div>
+          ${edu.institution ? `
+          <div class="degree" style="font-size: 10pt; color: #444; margin-bottom: 2pt; font-weight: 500;">
+            ${escapeHtml(edu.institution)}
+          </div>
+          ` : ''}
+          <div style="display: flex; align-items: center; gap: 8pt; font-size: 10pt; color: #666;">
+            <span>${escapeHtml(edu.startDate || '')} – ${escapeHtml(edu.endDate || '')}</span>
+            ${edu.gpa ? `<span>• ${escapeHtml(edu.gpa)}</span>` : ''}
+          </div>
+          ${edu.honors ? `<div class="description" style="font-style: italic; margin-top: 2pt;">${escapeHtml(edu.honors)}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+    ` : '';
+
+      case 'skills':
+        return skills.length > 0 ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      <div class="skills-list">
+        ${skills.map(skill => `
+          <div style="margin-bottom: 4pt;">
+            ${skill.category ? `<span style="font-weight: bold; font-size: 10pt;">${escapeHtml(skill.category)}: </span>` : ''}
+            <span style="font-size: 10pt; color: #444;">${skill.items.map(item => escapeHtml(item)).join(', ')}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : '';
+
+      case 'projects':
+        return projects.length > 0 ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      ${projects.map(proj => `
+        <div class="experience-item">
+          <h3>${escapeHtml(proj.name || '')}</h3>
+          <div class="description">${formatText(proj.description || '')}</div>
+          ${proj.technologies && proj.technologies.length > 0 
+            ? `<div class="description"><strong>Technologies:</strong> ${proj.technologies.map(t => escapeHtml(t)).join(', ')}</div>`
+            : ''}
+        </div>
+      `).join('')}
+    </div>
+    ` : '';
+
+      case 'certifications':
+        return certifications.length > 0 ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      ${certifications.map(cert => `
+        <div style="margin-bottom: 4pt;">
+          <span style="font-weight: bold; font-size: 10pt;">${escapeHtml(cert.name || '')}</span>
+          ${cert.issuer ? `<span style="font-size: 10pt; color: #444; margin-left: 4pt;">– ${escapeHtml(cert.issuer)}${cert.date ? ` (${escapeHtml(cert.date)})` : ''}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+    ` : '';
+
+      case 'hobbies':
+        return hobbies.length > 0 ? `
+    <div class="section">
+      <h2>${escapeHtml(displayName)}</h2>
+      <div class="description">${hobbies.map(h => escapeHtml(h.name || '')).join(', ')}</div>
+    </div>
+    ` : '';
+
+      default:
+        const customSection = resume.customSections?.find(s => s.id === sectionId);
+        if (customSection) {
+          return `
+    <div class="section">
+      <h2>${escapeHtml(customSection.title)}</h2>
+      <div class="description">${formatText(customSection.content || '')}</div>
+    </div>
+    `;
+        }
+        return '';
+    }
+  };
 
   return `
 <!DOCTYPE html>
@@ -262,120 +389,24 @@ function generateResumeHTML(resume: ResumeData): string {
       </div>
     </div>
 
-    <!-- Summary -->
-    ${resume.summary ? `
-    <div class="section">
-      <h2>Summary</h2>
-      <div class="description">${formatText(resume.summary)}</div>
-    </div>
-    ` : ''}
-
-    <!-- Experience -->
-    ${experiences.length > 0 ? `
-    <div class="section">
-      <h2>Experience</h2>
-      ${experiences.map(exp => `
-        <div class="experience-item">
-          <div class="experience-header" style="page-break-inside: avoid; break-inside: avoid; page-break-after: avoid; break-after: avoid;">
-            <div style="flex: 1; min-width: 0;">
-              <div class="company">${escapeHtml(exp.position || '')}</div>
-              <div class="position">${escapeHtml(exp.company || '')}</div>
-            </div>
-            <div class="date" style="white-space: nowrap; flex-shrink: 0;">
-              ${escapeHtml(exp.startDate || '')} – ${exp.current ? 'Current' : escapeHtml(exp.endDate || '')}
-            </div>
-          </div>
-          ${exp.description && exp.description.length > 0 ? `
-            <div class="description">
-              ${Array.isArray(exp.description) 
-                ? `<ul style="list-style: none; padding-left: 0; margin: 5pt 0;">${exp.description.map(d => `<li style="margin: 3pt 0; padding-left: 12pt; text-indent: -12pt; page-break-inside: avoid; break-inside: avoid;">• ${escapeHtml(d)}</li>`).join('')}</ul>`
-                : formatText(exp.description)}
-            </div>
-          ` : ''}
-        </div>
-      `).join('')}
-    </div>
-    ` : ''}
-
-    <!-- Education -->
-    ${education.length > 0 ? `
-    <div class="section">
-      <h2>Education</h2>
-      ${education.map(edu => `
-        <div class="education-item" style="page-break-inside: avoid; break-inside: avoid;">
-          <div class="institution" style="font-weight: bold; font-size: 11pt; margin-bottom: 2pt;">
-            ${escapeHtml(edu.degree || '')}${edu.field ? ` in ${escapeHtml(edu.field)}` : ''}
-          </div>
-          ${edu.institution ? `
-          <div class="degree" style="font-size: 10pt; color: #444; margin-bottom: 2pt; font-weight: 500;">
-            ${escapeHtml(edu.institution)}
-          </div>
-          ` : ''}
-          <div style="display: flex; align-items: center; gap: 8pt; font-size: 10pt; color: #666;">
-            <span>${escapeHtml(edu.startDate || '')} – ${escapeHtml(edu.endDate || '')}</span>
-            ${edu.gpa ? `<span>• ${escapeHtml(edu.gpa)}</span>` : ''}
-          </div>
-          ${edu.honors ? `<div class="description" style="font-style: italic; margin-top: 2pt;">${escapeHtml(edu.honors)}</div>` : ''}
-        </div>
-      `).join('')}
-    </div>
-    ` : ''}
-
-    <!-- Skills -->
-    ${skills.length > 0 ? `
-    <div class="section">
-      <h2>Skills</h2>
-      <div class="skills-list">
-        ${skills.map(skill => `
-          <div style="margin-bottom: 4pt;">
-            ${skill.category ? `<span style="font-weight: bold; font-size: 10pt;">${escapeHtml(skill.category)}: </span>` : ''}
-            <span style="font-size: 10pt; color: #444;">${skill.items.map(item => escapeHtml(item)).join(', ')}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    ` : ''}
-
-    <!-- Projects -->
-    ${projects.length > 0 ? `
-    <div class="section">
-      <h2>Projects</h2>
-      ${projects.map(proj => `
-        <div class="experience-item">
-          <h3>${escapeHtml(proj.name || '')}</h3>
-          <div class="description">${formatText(proj.description || '')}</div>
-          ${proj.technologies && proj.technologies.length > 0 
-            ? `<div class="description"><strong>Technologies:</strong> ${proj.technologies.map(t => escapeHtml(t)).join(', ')}</div>`
-            : ''}
-        </div>
-      `).join('')}
-    </div>
-    ` : ''}
-
-    <!-- Certifications -->
-    ${certifications.length > 0 ? `
-    <div class="section">
-      <h2>Certifications</h2>
-      ${certifications.map(cert => `
-        <div style="margin-bottom: 4pt;">
-          <span style="font-weight: bold; font-size: 10pt;">${escapeHtml(cert.name || '')}</span>
-          ${cert.issuer ? `<span style="font-size: 10pt; color: #444; margin-left: 4pt;">– ${escapeHtml(cert.issuer)}${cert.date ? ` (${escapeHtml(cert.date)})` : ''}</span>` : ''}
-        </div>
-      `).join('')}
-    </div>
-    ` : ''}
-
-    <!-- Hobbies -->
-    ${hobbies.length > 0 ? `
-    <div class="section">
-      <h2>Hobbies</h2>
-      <div class="description">${hobbies.map(h => escapeHtml(h.name || '')).join(', ')}</div>
-    </div>
-    ` : ''}
+    ${sectionOrder.map(sectionId => getSectionHTML(sectionId)).join('')}
   </div>
 </body>
 </html>
   `;
+}
+
+function getSectionDefaultName(sectionId: string): string {
+  const defaultNames: Record<string, string> = {
+    summary: 'Summary',
+    experiences: 'Experience',
+    education: 'Education',
+    skills: 'Skills',
+    projects: 'Projects',
+    certifications: 'Certifications',
+    hobbies: 'Hobbies',
+  };
+  return defaultNames[sectionId] || sectionId;
 }
 
 function escapeHtml(text: string): string {
