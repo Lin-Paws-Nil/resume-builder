@@ -83,6 +83,8 @@ export interface ResumeData {
   sectionNames: Record<string, string>; // Custom names for sections
   templateId: string;
   templateColor?: string; // Hex color code for template customization
+  profileImage?: string; // Base64 encoded profile image
+  showProfileImage?: boolean; // Whether to show profile image on resume
   createdAt: string;
   updatedAt: string;
 }

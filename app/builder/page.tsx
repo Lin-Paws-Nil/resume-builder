@@ -11,7 +11,7 @@ import { useResumeStore } from '@/store/resume-store';
 import { Button } from '@/components/ui/button';
 import { SparkleButton } from '@/components/ui/sparkle-button';
 import { Spinner } from '@/components/ui/spinner';
-import { Download, LogOut, Undo, Redo, Eye, GripVertical, User, Lock, FileText, ZoomIn, ZoomOut } from 'lucide-react';
+import { Download, LogOut, Undo, Redo, Eye, GripVertical, User, Lock, FileText, ZoomIn, ZoomOut, ImagePlus } from 'lucide-react';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useSubscription } from '@/lib/hooks/use-subscription';
@@ -20,6 +20,7 @@ import { Notification } from '@/components/ui/notification';
 import { ToastProvider, showToast } from '@/components/ui/toast';
 import { useConfirmDialog } from '@/components/ui/confirm-dialog';
 import { createClient } from '@/lib/supabase/client';
+import { ProfileImageUpload } from '@/components/resume/ProfileImageUpload';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,7 @@ function BuilderPageContent() {
     redo,
     canUndo,
     canRedo,
+    setShowProfileImage,
   } = useResumeStore();
   
   const { user, loading: authLoading, isGuest, signOut } = useAuth();
@@ -51,6 +53,7 @@ function BuilderPageContent() {
   const [notification, setNotification] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
   const [forceRender, setForceRender] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [showImageUpload, setShowImageUpload] = useState(false);
   const resizeRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -569,7 +572,7 @@ function BuilderPageContent() {
             <div 
               className="bg-white shadow-2xl" 
               style={{ 
-                width: '210mm',
+                width: '273mm',
                 transform: `scale(${zoomLevel / 100})`,
                 transformOrigin: 'top center',
                 transition: 'transform 0.3s ease-out'
@@ -604,6 +607,46 @@ function BuilderPageContent() {
             >
               <ZoomOut className="h-5 w-5" />
             </button>
+          </div>
+
+          {/* Profile Image Toggle - Top Right */}
+          <div className="absolute top-4 right-6 z-10">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-2">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowImageUpload(true)}
+                  className={`p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                    resume?.profileImage 
+                      ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                      : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                  title="Upload profile photo"
+                >
+                  {resume?.profileImage ? (
+                    <img 
+                      src={resume.profileImage} 
+                      alt="Profile" 
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <ImagePlus className="h-5 w-5" />
+                  )}
+                  <span className="text-xs font-medium">Profile Photo</span>
+                </button>
+                {resume?.profileImage && (
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={resume?.showProfileImage ?? false}
+                      onChange={(e) => setShowProfileImage(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    <span className="text-xs text-gray-600 font-medium">Show</span>
+                  </label>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -663,6 +706,10 @@ function BuilderPageContent() {
       
       <ToastProvider />
       <ConfirmDialog />
+      <ProfileImageUpload 
+        open={showImageUpload} 
+        onOpenChange={setShowImageUpload} 
+      />
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { AetherTemplate } from '@/components/templates/AetherTemplate';
 import { NebulaTemplate } from '@/components/templates/NebulaTemplate';
 import { EonTemplate } from '@/components/templates/EonTemplate';
 import { CosmosTemplate } from '@/components/templates/CosmosTemplate';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 const templateComponents: Record<string, React.ComponentType<any>> = {
   aurora: AuroraTemplate,
@@ -30,58 +30,51 @@ const templateComponents: Record<string, React.ComponentType<any>> = {
   creative: CreativeTemplate,
 };
 
-// A4 dimensions
-const A4_WIDTH_MM = 210;
-const A4_HEIGHT_MM = 297;
-const PAGE_PADDING_MM = 20;
+// A4 dimensions (scaled up for better readability in preview)
+const SCALE_FACTOR = 1.3; // Increased from 1.2 to make preview larger
+const A4_WIDTH_MM = 210 * SCALE_FACTOR;
+const A4_HEIGHT_MM = 297 * SCALE_FACTOR;
+const PAGE_PADDING_MM = 20 * SCALE_FACTOR;
+const MM_TO_PX = 3.779527559;
+
+// Content area dimensions (inside padding)
+const CONTENT_WIDTH_PX = (A4_WIDTH_MM - PAGE_PADDING_MM * 2) * MM_TO_PX;
+const CONTENT_HEIGHT_PX = (A4_HEIGHT_MM - PAGE_PADDING_MM * 2) * MM_TO_PX;
 
 export function ResumePreview() {
   const { previewResume, selectedTemplate } = useResumeStore();
   const measureRef = useRef<HTMLDivElement>(null);
-  const [pages, setPages] = useState<number>(1);
+  const [pageCount, setPageCount] = useState(1);
 
-  useEffect(() => {
-    if (!measureRef.current || !previewResume) {
-      setPages(1);
+  const calculatePages = useCallback(() => {
+    const element = measureRef.current;
+    if (!element || !previewResume) {
+      setPageCount(1);
       return;
     }
 
-    const measureContent = () => {
-      const element = measureRef.current;
+    requestAnimationFrame(() => {
       if (!element) return;
+      const totalHeight = element.scrollHeight;
+      const pages = Math.ceil(totalHeight / CONTENT_HEIGHT_PX);
+      setPageCount(Math.max(1, pages));
+    });
+  }, [previewResume]);
 
-      // Wait for content to render
-      requestAnimationFrame(() => {
-        if (!element) return;
-        
-        // Get the actual content height
-        const contentHeight = element.scrollHeight;
-        
-        // Calculate available height per page
-        // A4 height (297mm) - top padding (20mm) - bottom padding (20mm) = 257mm
-        const availableHeightMM = A4_HEIGHT_MM - (PAGE_PADDING_MM * 2);
-        
-        // Convert mm to pixels (at 96 DPI: 1mm ≈ 3.7795px)
-        const MM_TO_PX = 3.779527559;
-        const availableHeightPx = availableHeightMM * MM_TO_PX;
-        
-        // Calculate number of pages needed
-        const calculatedPages = Math.ceil(contentHeight / availableHeightPx);
-        setPages(Math.max(1, calculatedPages));
-      });
-    };
+  useEffect(() => {
+    if (!measureRef.current || !previewResume) {
+      setPageCount(1);
+      return;
+    }
 
-    // Measure after a delay to ensure content is rendered
-    const timeoutId = setTimeout(measureContent, 300);
-    
-    // Re-measure on window resize
-    window.addEventListener('resize', measureContent);
-    
+    const timeoutId = setTimeout(calculatePages, 300);
+    window.addEventListener('resize', calculatePages);
+
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener('resize', measureContent);
+      window.removeEventListener('resize', calculatePages);
     };
-  }, [previewResume, selectedTemplate]);
+  }, [previewResume, selectedTemplate, calculatePages]);
 
   if (!previewResume) {
     return (
@@ -94,34 +87,26 @@ export function ResumePreview() {
   const TemplateComponent =
     templateComponents[selectedTemplate || 'aurora'] || AuroraTemplate;
 
-  // Calculate page dimensions
-  const availableHeightMM = A4_HEIGHT_MM - (PAGE_PADDING_MM * 2);
-  const MM_TO_PX = 3.779527559;
-  const availableHeightPx = availableHeightMM * MM_TO_PX;
-
   return (
-    <div className="h-full overflow-y-auto bg-gray-100 p-4">
-      <div className="flex flex-col items-center gap-4" id="resume-preview-container">
-        {/* Hidden measurement container - also used for PDF generation */}
+    <div className="h-full overflow-y-auto bg-gray-100 p-1">
+      <div className="flex flex-col items-center gap-2" id="resume-preview-container">
+        {/* Hidden measurement container - matches content area width exactly */}
         <div
           ref={measureRef}
           id="resume-preview-full-content"
-          className="absolute opacity-0 pointer-events-none -z-10"
+          className="absolute opacity-0 pointer-events-none"
           style={{
-            width: `${A4_WIDTH_MM}mm`,
-            padding: `${PAGE_PADDING_MM}mm`,
-            boxSizing: 'border-box',
-            visibility: 'hidden',
+            width: CONTENT_WIDTH_PX,
+            left: '-9999px',
+            top: 0,
           }}
         >
-          <div className="bg-white">
-            <TemplateComponent resume={previewResume} />
-          </div>
+          <TemplateComponent resume={previewResume} />
         </div>
 
-        {/* Render visible pages */}
-        {Array.from({ length: pages }).map((_, pageIndex) => {
-          const offsetY = pageIndex * availableHeightPx;
+        {/* Render pages */}
+        {Array.from({ length: pageCount }, (_, pageIndex) => {
+          const contentStartY = pageIndex * CONTENT_HEIGHT_PX;
 
           return (
             <div
@@ -134,25 +119,28 @@ export function ResumePreview() {
                 padding: `${PAGE_PADDING_MM}mm`,
                 boxSizing: 'border-box',
                 overflow: 'hidden',
-                marginBottom: pageIndex < pages - 1 ? '16px' : '0',
+                marginBottom: pageIndex < pageCount - 1 ? '16px' : '0',
               }}
             >
-              {/* Page content with clipping */}
+              {/* Content area - clips to page height */}
               <div
-                className="relative"
                 style={{
-                  height: `${availableHeightMM}mm`,
+                  width: '100%',
+                  height: CONTENT_HEIGHT_PX,
                   overflow: 'hidden',
+                  position: 'relative',
                 }}
               >
+                {/* Content shifted to show this page's portion */}
                 <div
                   style={{
-                    transform: `translateY(-${offsetY}px)`,
+                    transform: `translateY(-${contentStartY}px)`,
                   }}
                 >
                   <TemplateComponent resume={previewResume} />
                 </div>
               </div>
+
             </div>
           );
         })}
