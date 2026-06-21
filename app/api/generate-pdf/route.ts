@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       const htmlContent = renderTemplateToHTML(resumeData);
 
       await page.setContent(htmlContent, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'domcontentloaded',
       });
 
       // Wait for fonts to fully load and Tailwind to compile
