@@ -65,6 +65,12 @@ export function TemplateSectionRenderer({ resume, renderSection }: TemplateSecti
       return { id: sectionId, type: 'standard', data, displayName };
     }
     if (data && (Array.isArray(data) ? data.length > 0 : (typeof data === 'string' ? data !== '' : true))) {
+      // For hobbies, filter out items with empty names
+      if (sectionId === 'hobbies' && Array.isArray(data)) {
+        const validItems = data.filter((item: any) => item.name && item.name.trim() !== '');
+        if (validItems.length === 0) return null;
+        return { id: sectionId, type: 'standard', data: validItems, displayName };
+      }
       return { id: sectionId, type: 'standard', data, displayName };
     }
 

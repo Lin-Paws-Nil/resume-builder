@@ -1,4 +1,4 @@
-# LUX Resume Builder - Modern UI/UX Transformation
+# createresume.co - Modern UI/UX Transformation
 
 ## Overview
 Complete UI/UX overhaul transforming the resume builder from a light blue theme to a futuristic, dark glassmorphic design inspired by cutting-edge web applications.
@@ -192,7 +192,7 @@ Complete UI/UX overhaul transforming the resume builder from a light blue theme 
 ## Brand Identity
 
 ### Logo
-- Changed from "resumebuilder.io" to "LUX"
+- Changed from "resumebuilder.io" to "createresume.co"
 - Gradient text effect
 - Icon with gradient background
 - Rotation animation on hover

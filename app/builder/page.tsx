@@ -482,7 +482,7 @@ function BuilderPageContent() {
               <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-xl">
                 <FileText className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">resumebuilder.io</h1>
+              <h1 className="text-xl font-bold text-gray-900">createresume.co</h1>
             </div>
             <span className="text-sm text-gray-400">|</span>
             <span className="text-sm text-gray-600">Resume Builder</span>
@@ -568,9 +568,8 @@ function BuilderPageContent() {
       <div className="flex-1 flex overflow-hidden relative">
         <div className="flex-1 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 overflow-auto relative" style={{ marginLeft: `${leftPanelWidth}px` }}>
           <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] opacity-20 pointer-events-none"></div>
-          <div className="min-h-full flex items-start justify-center py-8 relative z-10">
+          <div className="flex justify-center relative z-10">
             <div 
-              className="bg-white shadow-2xl" 
               style={{ 
                 width: '273mm',
                 transform: `scale(${zoomLevel / 100})`,
@@ -613,6 +612,7 @@ function BuilderPageContent() {
           <div className="absolute top-4 right-6 z-10">
             <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-2">
               <div className="flex items-center gap-2">
+                {['aurora', 'stellar', 'creative', 'zenith', 'nebula'].includes(resume?.templateId || '') && (
                 <button
                   onClick={() => setShowImageUpload(true)}
                   className={`p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
@@ -633,7 +633,8 @@ function BuilderPageContent() {
                   )}
                   <span className="text-xs font-medium">Profile Photo</span>
                 </button>
-                {resume?.profileImage && (
+                )}
+                {resume?.profileImage && ['aurora', 'stellar', 'creative', 'zenith', 'nebula'].includes(resume?.templateId || '') && (
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -701,6 +702,7 @@ function BuilderPageContent() {
           message={notification.message}
           onClose={() => setNotification(null)}
           type={notification.type || 'success'}
+          duration={3000}
         />
       )}
       

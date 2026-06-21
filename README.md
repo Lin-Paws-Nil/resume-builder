@@ -1,4 +1,4 @@
-# FreeResume Builder.io - Free Resume Builder
+# createresume.co - Free AI-Powered Resume Builder
 
 A modern, AI-powered resume builder that helps you create professional resumes in minutes.
 

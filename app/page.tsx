@@ -38,7 +38,7 @@ export default function HomePage() {
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl shadow-lg">
               <FileText className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">resumebuilder.io</h1>
+            <h1 className="text-xl font-bold text-gray-900">createresume.co</h1>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -149,7 +149,7 @@ export default function HomePage() {
       <section className="bg-white py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Why use resumebuilder.io&apos;s free resume builder?
+            Why use createresume.co&apos;s free resume builder?
           </h2>
           <p className="text-center text-gray-600 mb-16 text-lg">
             Everything you need to create a winning resume
@@ -273,7 +273,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="text-gray-700 mb-4">
-                &quot;I got 3 job offers within 2 weeks of using resumebuilder.io! The AI suggestions helped me highlight achievements I didn&apos;t even think were important.&quot;
+                &quot;I got 3 job offers within 2 weeks of using createresume.co! The AI suggestions helped me highlight achievements I didn&apos;t even think were important.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -378,7 +378,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="text-gray-700 mb-4">
-                &quot;The ATS optimization feature is a game-changer. My resume now passes every screening. Thank you resumebuilder.io!&quot;
+                &quot;The ATS optimization feature is a game-changer. My resume now passes every screening. Thank you createresume.co!&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -420,10 +420,10 @@ export default function HomePage() {
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl">
               <FileText className="h-5 w-5 text-white" />
             </div>
-            <span className="text-white font-semibold text-lg">resumebuilder.io</span>
+            <span className="text-white font-semibold text-lg">createresume.co</span>
           </div>
           <p className="text-center text-sm text-gray-400">
-            © 2024 resumebuilder.io. All rights reserved.
+            © 2026 createresume.co. All rights reserved.
           </p>
         </div>
       </footer>

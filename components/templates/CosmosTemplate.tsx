@@ -40,7 +40,7 @@ export function CosmosTemplate({ resume }: CosmosTemplateProps) {
                 <div key={exp.id}>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-sm">
                         {" "}
                         {exp.position}
                         {""}{" "}
@@ -79,7 +79,7 @@ export function CosmosTemplate({ resume }: CosmosTemplateProps) {
               {""}{" "}
               {data.map((edu: any) => (
                 <div key={edu.id}>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 text-sm">
                     {" "}
                     {edu.degree 
                       ? (edu.field ? `${edu.degree} in ${edu.field}` : edu.degree)
@@ -173,10 +173,11 @@ export function CosmosTemplate({ resume }: CosmosTemplateProps) {
                     {cert.name}
                     {""}{" "}
                   </span>
-                  <span className="text-gray-700 ml-2 text-xs">
-                    {" "}
-                    - {cert.issuer} ({cert.date}) {""}{" "}
-                  </span>
+                  {(cert.issuer || cert.date) && (
+                    <span className="text-gray-700 ml-2 text-xs">
+                      {cert.issuer && `– ${cert.issuer}`}{cert.issuer && cert.date ? ' ' : ''}{cert.date && `(${cert.date})`}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

@@ -35,7 +35,7 @@ export function AuroraTemplate({ resume }: AuroraTemplateProps) {
                 <div key={exp.id}>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-sm">
                         {exp.position.toUpperCase()}
                       </h3>
                       <p className="text-gray-600 font-medium text-xs">
@@ -178,12 +178,24 @@ export function AuroraTemplate({ resume }: AuroraTemplateProps) {
           color: headerTextColor,
         }}
       >
-        <h1 className="text-3xl font-bold uppercase mb-1">
-          {resume.personalInfo.fullName || "Your Name"}
-        </h1>
-        <p className="uppercase tracking-wide" style={{ fontSize: "14px" }}>
-          {resume.experiences?.[0]?.position || "Your Title"}
-        </p>
+        <div className={resume.showProfileImage && resume.profileImage ? "flex items-center gap-4" : ""}>
+          {resume.showProfileImage && resume.profileImage && (
+            <img
+              src={resume.profileImage}
+              alt={resume.personalInfo.fullName || "Profile"}
+              className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2"
+              style={{ borderColor: headerTextColor === '#FFFFFF' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)' }}
+            />
+          )}
+          <div>
+            <h1 className="text-3xl font-bold uppercase mb-1">
+              {resume.personalInfo.fullName || "Your Name"}
+            </h1>
+            <p className="uppercase tracking-wide" style={{ fontSize: "14px" }}>
+              {resume.experiences?.[0]?.position || "Your Title"}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-0">
@@ -219,36 +231,6 @@ export function AuroraTemplate({ resume }: AuroraTemplateProps) {
             </div>
           </div>
 
-          {resume.skills.length > 0 && (
-            <div>
-              <h2 
-                className="text-lg font-bold uppercase mb-3"
-                style={{ color: sidebarTextColor }}
-              >
-                Skills
-              </h2>
-              <div className="space-y-2">
-                {resume.skills.map((skill) => (
-                  <div key={skill.id}>
-                    {skill.category && (
-                      <p 
-                        className="font-semibold text-xs"
-                        style={{ color: sidebarTextColor }}
-                      >
-                        {skill.category}
-                      </p>
-                    )}
-                    <p 
-                      className="text-xs" 
-                      style={{ fontSize: "12px", color: sidebarTextColor }}
-                    >
-                      {skill.items.join(", ")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

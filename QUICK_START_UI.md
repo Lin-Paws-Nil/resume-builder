@@ -67,7 +67,7 @@ Navigate to: **http://localhost:3000**
 6. **Animations**: Smooth transitions on everything
 
 ### Brand
-- **Name**: Changed from "resumebuilder.io" to "LUX"
+- **Name**: Changed from "resumebuilder.io" to "createresume.co"
 - **Logo**: Gradient icon with rotation animation
 - **Tagline**: "Resume Builder"
 - **Style**: Futuristic, premium, AI-focused

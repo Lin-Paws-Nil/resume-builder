@@ -31,10 +31,7 @@ export function AnimatedLogo({ size = 'md', showText = true, className = '' }: A
       </motion.div>
       {showText && (
         <div>
-          <h1 className={`${sizes[size].text} font-bold gradient-text leading-none`}>LUX</h1>
-          {size !== 'sm' && (
-            <p className="text-xs text-gray-400 -mt-0.5">Resume Builder</p>
-          )}
+          <h1 className={`${sizes[size].text} font-bold gradient-text leading-none`}>createresume.co</h1>
         </div>
       )}
     </Link>

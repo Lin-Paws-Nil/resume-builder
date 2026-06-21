@@ -39,7 +39,7 @@ const templates = [
     id: 'stellar',
     name: 'Stellar',
     description: 'A sleek and polished CV template, emphasizing standout achievements and excellence',
-    categories: ['Professional', 'ATS', 'Two columns'] as TemplateCategory[],
+    categories: ['Professional', 'Two columns'] as TemplateCategory[],
     image: '/resume-examples/stellar/stellar.png',
     color: 'from-blue-400 to-blue-600',
   },
@@ -199,7 +199,7 @@ export default function TemplatesPage() {
                   <FileText className="h-5 w-5 text-white" />
                 </div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  resumebuilder.io
+                  createresume.co
                 </h1>
               </div>
             </div>
@@ -476,7 +476,7 @@ export default function TemplatesPage() {
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl">
               <FileText className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-white">resumebuilder.io</h2>
+            <h2 className="text-2xl font-bold text-white">createresume.co</h2>
           </div>
           <p className="text-gray-400 text-sm">
             Build your professional resume in minutes

@@ -28,8 +28,6 @@ interface ResumeDataTableProps {
   resumes: SavedResume[];
   onEdit: (resume: SavedResume) => void;
   onDelete: (id: string) => void;
-  onUpdateBucket: (id: string, bucket: string) => void;
-  buckets: string[];
 }
 
 const statusVariants = cva("capitalize text-white", {
@@ -47,11 +45,9 @@ const statusVariants = cva("capitalize text-white", {
 });
 
 export const ResumeDataTable = ({ 
-  resumes, 
-  onEdit, 
-  onDelete, 
-  onUpdateBucket,
-  buckets 
+  resumes,
+  onEdit,
+  onDelete,
 }: ResumeDataTableProps) => {
   const rowVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -80,7 +76,6 @@ export const ResumeDataTable = ({
             <TableRow className="border-b border-gray-800 hover:bg-transparent bg-gray-950">
               <TableHead className="text-gray-300 font-semibold">Resume</TableHead>
               <TableHead className="text-gray-300 font-semibold">Name</TableHead>
-              <TableHead className="text-gray-300 font-semibold">Bucket</TableHead>
               <TableHead className="text-gray-300 font-semibold">Created</TableHead>
               <TableHead className="text-gray-300 font-semibold">Updated</TableHead>
               <TableHead className="text-gray-300 font-semibold">Actions</TableHead>
@@ -106,24 +101,6 @@ export const ResumeDataTable = ({
                   
                   <TableCell className="text-gray-300">
                     {resume.personalInfo?.fullName || 'N/A'}
-                  </TableCell>
-                  
-                  <TableCell>
-                    <select
-                      value={resume.bucket || ''}
-                      onChange={(e) => onUpdateBucket(resume.id, e.target.value)}
-                      className="px-3 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded-md text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:bg-gray-700 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <option value="" className="bg-gray-900 text-gray-300">Select bucket</option>
-                      {buckets
-                        .filter((b) => b !== 'all')
-                        .map((bucket) => (
-                          <option key={bucket} value={bucket} className="bg-gray-900 text-gray-300">
-                            {bucket}
-                          </option>
-                        ))}
-                    </select>
                   </TableCell>
                   
                   <TableCell className="text-gray-300">

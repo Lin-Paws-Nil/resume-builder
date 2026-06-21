@@ -147,7 +147,7 @@ export default function AccountPage() {
               <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-2 rounded-xl shadow-lg">
                 <FileText className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">resumebuilder.io</h1>
+              <h1 className="text-xl font-bold text-gray-900">createresume.co</h1>
             </div>
             <span className="text-sm text-gray-400">|</span>
             <span className="text-sm text-gray-600">Account</span>
