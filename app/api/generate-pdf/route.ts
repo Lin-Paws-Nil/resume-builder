@@ -279,6 +279,7 @@ function renderTemplateToHTML(resume: ResumeData): string {
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
+      box-sizing: border-box;
     }
 
     html, body {
@@ -295,9 +296,11 @@ function renderTemplateToHTML(resume: ResumeData): string {
     }
 
     #resume-content {
-      width: 170mm;
+      width: 100%;
+      max-width: 170mm;
       margin: 0 auto;
       padding: 0;
+      box-sizing: border-box;
       overflow-wrap: break-word;
       word-wrap: break-word;
     }
