@@ -84,19 +84,35 @@ export async function downloadResumeAsPDF(
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
+      // Temporarily remove CSS transform scaling to avoid html2canvas distortion
+      const originalTransform = pageElement.style.transform;
+      const originalTransformOrigin = pageElement.style.transformOrigin;
+      const originalWidth = pageElement.style.width;
+      const originalHeight = pageElement.style.height;
+      pageElement.style.transform = 'none';
+      pageElement.style.transformOrigin = 'top left';
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
       const canvas = await html2canvas(pageElement, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
         allowTaint: true,
-        width: pageElement.offsetWidth,
-        height: pageElement.offsetHeight,
-        windowWidth: pageElement.offsetWidth,
-        windowHeight: pageElement.offsetHeight,
+        width: pageElement.scrollWidth,
+        height: pageElement.scrollHeight,
+        windowWidth: pageElement.scrollWidth,
+        windowHeight: pageElement.scrollHeight,
         scrollX: 0,
         scrollY: 0,
       });
+
+      // Restore original transforms
+      pageElement.style.transform = originalTransform;
+      pageElement.style.transformOrigin = originalTransformOrigin;
+      pageElement.style.width = originalWidth;
+      pageElement.style.height = originalHeight;
 
       const imgData = canvas.toDataURL('image/png', 1.0);
       const imgWidth = canvas.width;

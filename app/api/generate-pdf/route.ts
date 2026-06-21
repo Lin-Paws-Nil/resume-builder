@@ -33,40 +33,88 @@ const templateComponents: Record<string, React.ComponentType<{ resume: ResumeDat
   creative: CreativeTemplate,
 };
 
+async function getBrowser() {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    // Production on Vercel: use @sparticuz/chromium with puppeteer-core
+    const chromium = (await import('@sparticuz/chromium')).default;
+    const puppeteerCore = await import('puppeteer-core');
+
+    return await puppeteerCore.default.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  } else {
+    // Local development: try full puppeteer first, fall back to puppeteer-core
+    try {
+      const puppeteer = await import('puppeteer');
+      return await puppeteer.default.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu',
+        ],
+      });
+    } catch {
+      // If full puppeteer not installed, try puppeteer-core with system Chrome
+      const puppeteerCore = await import('puppeteer-core');
+      const possiblePaths = [
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      ];
+      
+      let executablePath: string | undefined;
+      const fs = await import('fs');
+      for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+          executablePath = p;
+          break;
+        }
+      }
+
+      if (!executablePath) {
+        throw new Error('No Chrome/Chromium found locally');
+      }
+
+      return await puppeteerCore.default.launch({
+        headless: true,
+        executablePath,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    }
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const resumeData: ResumeData = await request.json();
 
-    let puppeteer: any;
+    let browser;
     try {
-      puppeteer = await import('puppeteer');
-    } catch (error) {
+      browser = await getBrowser();
+    } catch (error: any) {
+      console.error('Browser launch failed:', error.message);
       return NextResponse.json(
         {
-          error: 'Server-side PDF generation not available. Please install puppeteer: npm install puppeteer',
+          error: 'Server-side PDF generation not available',
           fallback: true,
         },
         { status: 503 }
       );
     }
 
-    const browser = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-      ],
-    });
-
     try {
       const page = await browser.newPage();
 
-      await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 });
+      await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
 
       const htmlContent = renderTemplateToHTML(resumeData);
 
@@ -74,7 +122,9 @@ export async function POST(request: NextRequest) {
         waitUntil: 'networkidle0',
       });
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait for fonts to fully load and Tailwind to compile
+      await page.evaluate(() => document.fonts.ready);
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Apply same page break logic as the preview
       await page.evaluate(() => {
@@ -82,7 +132,7 @@ export async function POST(request: NextRequest) {
         if (!container) return;
 
         const MM_TO_PX = 3.779527559;
-        const CONTENT_HEIGHT_PX = (297 - 26) * MM_TO_PX; // Must match preview
+        const CONTENT_HEIGHT_PX = (297 - 26) * MM_TO_PX;
 
         const totalHeight = container.scrollHeight;
         if (totalHeight <= CONTENT_HEIGHT_PX) return;
@@ -160,12 +210,12 @@ export async function POST(request: NextRequest) {
         format: 'A4',
         printBackground: true,
         margin: {
-          top: '0',
-          right: '0',
-          bottom: '0',
-          left: '0',
+          top: '10mm',
+          right: '20mm',
+          bottom: '10mm',
+          left: '20mm',
         },
-        preferCSSPageSize: true,
+        preferCSSPageSize: false,
         displayHeaderFooter: false,
       });
 
@@ -205,7 +255,7 @@ function renderTemplateToHTML(resume: ResumeData): string {
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -222,7 +272,13 @@ function renderTemplateToHTML(resume: ResumeData): string {
   <style>
     @page {
       size: A4;
-      margin: 10mm 20mm 10mm 20mm;
+      margin: 0;
+    }
+
+    * {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     html, body {
@@ -232,15 +288,25 @@ function renderTemplateToHTML(resume: ResumeData): string {
       padding: 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: normal;
+      word-spacing: normal;
     }
 
     #resume-content {
       width: 170mm;
       margin: 0 auto;
       padding: 0;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
     }
 
-    /* Rich text content styling */
+    h1, h2, h3, h4, h5, h6, p, li, span, div, a {
+      letter-spacing: normal;
+      word-spacing: normal;
+    }
+
     .rich-text-content {
       line-height: 1.6;
     }
@@ -279,6 +345,48 @@ function renderTemplateToHTML(resume: ResumeData): string {
       margin: 1em 0;
     }
 
+    .grid {
+      display: grid;
+    }
+    .grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .col-span-2 {
+      grid-column: span 2 / span 2;
+    }
+    .gap-0 {
+      gap: 0px;
+    }
+
+    .flex {
+      display: flex;
+    }
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+    .justify-between {
+      justify-content: space-between;
+    }
+    .items-start {
+      align-items: flex-start;
+    }
+    .items-center {
+      align-items: center;
+    }
+
+    .space-y-2 > * + * {
+      margin-top: 0.5rem;
+    }
+    .space-y-3 > * + * {
+      margin-top: 0.75rem;
+    }
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+    .space-y-6 > * + * {
+      margin-top: 1.5rem;
+    }
+
     @media print {
       body {
         -webkit-print-color-adjust: exact;
@@ -291,6 +399,11 @@ function renderTemplateToHTML(resume: ResumeData): string {
   <div id="resume-content">
     ${templateMarkup}
   </div>
+  <script>
+    document.querySelectorAll('*').forEach(el => {
+      getComputedStyle(el).getPropertyValue('display');
+    });
+  </script>
 </body>
 </html>`;
 }
