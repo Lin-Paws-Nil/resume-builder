@@ -78,7 +78,9 @@ export function useSubscription(userId: string | null) {
             .update({ is_active: false })
             .eq('user_id', userId)
             .eq('id', data.id)
-            .catch(err => console.error('Error updating subscription:', err));
+            .then(({ error }) => {
+              if (error) console.error('Error updating subscription:', error);
+            });
         }
       }
 

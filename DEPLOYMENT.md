@@ -1,4 +1,4 @@
-# Deployment Guide - FreeResume Builder.io
+# Deployment Guide - createresume.co
 
 ## ✅ Build Status
 The application builds successfully and is ready for deployment!
@@ -11,7 +11,7 @@ The application builds successfully and is ready for deployment!
    ```bash
    git init
    git add .
-   git commit -m "Initial commit - FreeResume Builder.io"
+   git commit -m "Initial commit - createresume.co"
    git branch -M main
    git remote add origin YOUR_GITHUB_REPO_URL
    git push -u origin main
@@ -91,7 +91,7 @@ npm start
 
 # Or use PM2 for process management
 npm install -g pm2
-pm2 start npm --name "resume-builder" -- start
+pm2 start npm --name "createresume-io" -- start
 ```
 
 ## 🔍 Post-Deployment Checklist

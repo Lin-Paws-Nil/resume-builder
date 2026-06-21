@@ -50,6 +50,8 @@ interface ResumeStore {
   deleteSection: (sectionId: string) => void;
   addCustomSection: (name: string, type: 'text' | 'list' | 'items') => void;
   updateCustomSection: (sectionId: string, updates: Partial<CustomSection>) => void;
+  setProfileImage: (image: string | null) => void;
+  setShowProfileImage: (show: boolean) => void;
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
@@ -291,6 +293,30 @@ export const useResumeStore = create<ResumeStore>()(
           };
           return updateResumeWithHistory(updated, state);
         }),
+      setProfileImage: (image) =>
+        set((state) => {
+          if (!state.resume) return state;
+          const updated = {
+            ...state.resume,
+            profileImage: image || undefined,
+          };
+          return {
+            ...updateResumeWithHistory(updated, state),
+            previewResume: updated,
+          };
+        }),
+      setShowProfileImage: (show) =>
+        set((state) => {
+          if (!state.resume) return state;
+          const updated = {
+            ...state.resume,
+            showProfileImage: show,
+          };
+          return {
+            ...updateResumeWithHistory(updated, state),
+            previewResume: updated,
+          };
+        }),
       undo: () =>
         set((state) => {
           if (!state.history || state.history.past.length === 0) return state;
@@ -392,6 +418,65 @@ export const useResumeStore = create<ResumeStore>()(
     }),
     {
       name: 'resume-storage',
+      partialize: (state) => {
+        const { previewResume, ...rest } = state;
+        return rest;
+      },
+      storage: {
+        getItem: (name) => {
+          const str = localStorage.getItem(name);
+          if (!str) return null;
+          try {
+            return JSON.parse(str);
+          } catch {
+            return null;
+          }
+        },
+        setItem: (name, value) => {
+          try {
+            const valueToStore = { ...value };
+            if (valueToStore.state?.resume?.profileImage && 
+                valueToStore.state.resume.profileImage.length > 100000) {
+              valueToStore.state = {
+                ...valueToStore.state,
+                resume: {
+                  ...valueToStore.state.resume,
+                  profileImage: undefined,
+                },
+              };
+            }
+            localStorage.setItem(name, JSON.stringify(valueToStore));
+          } catch (error: any) {
+            if (error?.name === 'QuotaExceededError') {
+              console.warn('Storage quota exceeded, saving without profile image');
+              try {
+                const reducedValue = { ...value };
+                if (reducedValue.state?.resume) {
+                  reducedValue.state = {
+                    ...reducedValue.state,
+                    resume: {
+                      ...reducedValue.state.resume,
+                      profileImage: undefined,
+                    },
+                    history: null,
+                  };
+                }
+                localStorage.setItem(name, JSON.stringify(reducedValue));
+              } catch {
+                console.error('Failed to save even reduced state');
+              }
+            } else {
+              console.error('Storage error:', error);
+            }
+          }
+        },
+        removeItem: (name) => localStorage.removeItem(name),
+      },
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error('Error rehydrating storage:', error);
+        }
+      },
     }
   )
 );

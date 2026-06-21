@@ -40,7 +40,7 @@ export function NebulaTemplate({ resume }: NebulaTemplateProps) {
                 <div key={exp.id}>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-sm">
                         {" "}
                         {exp.position}
                         {""}{" "}
@@ -79,7 +79,7 @@ export function NebulaTemplate({ resume }: NebulaTemplateProps) {
               {""}{" "}
               {data.map((edu: any) => (
                 <div key={edu.id}>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 text-sm">
                     {" "}
                     {edu.degree 
                       ? (edu.field ? `${edu.degree} - ${edu.field}` : edu.degree)
@@ -173,10 +173,11 @@ export function NebulaTemplate({ resume }: NebulaTemplateProps) {
                     {cert.name}
                     {""}{" "}
                   </span>
-                  <span className="text-gray-700 ml-2 text-xs">
-                    {" "}
-                    - {cert.issuer} ({cert.date}) {""}{" "}
-                  </span>
+                  {(cert.issuer || cert.date) && (
+                    <span className="text-gray-700 ml-2 text-xs">
+                      {cert.issuer && `– ${cert.issuer}`}{cert.issuer && cert.date ? ' ' : ''}{cert.date && `(${cert.date})`}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -204,27 +205,22 @@ export function NebulaTemplate({ resume }: NebulaTemplateProps) {
   return (
     <div className="font-sans bg-white">
       {" "}
-      {""} {/* Dark Header with Photo */}
+      {/* Dark Header */}
       <div className="bg-gray-900 text-white p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="font-bold">
-              {" "}
-              {""}{" "}
-              {(resume.personalInfo.fullName || "Y").charAt(0).toUpperCase()}
-              {""}{" "}
-            </span>
-          </div>
+        <div className={resume.showProfileImage && resume.profileImage ? "flex items-center gap-4" : ""}>
+          {resume.showProfileImage && resume.profileImage && (
+            <img
+              src={resume.profileImage}
+              alt={resume.personalInfo.fullName || "Profile"}
+              className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-gray-600"
+            />
+          )}
           <div>
-            <h1 className="font-bold uppercase mb-1">
-              {" "}
-              {""} {resume.personalInfo.fullName || "Your Name"}
-              {""}{" "}
+            <h1 className="text-xl font-bold uppercase mb-1">
+              {resume.personalInfo.fullName || "Your Name"}
             </h1>
-            <p className="uppercase">
-              {" "}
-              {""} {resume.experiences?.[0]?.position || "Your Title"}
-              {""}{" "}
+            <p className="text-sm text-gray-300 uppercase">
+              {resume.experiences?.[0]?.position || "Your Title"}
             </p>
           </div>
         </div>

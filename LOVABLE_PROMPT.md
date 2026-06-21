@@ -1,8 +1,8 @@
-# 🚀 Resume Builder Application - Lovable Implementation Guide
+# 🚀 createresume.co - Implementation Guide
 
 ## Project Overview
 
-Build a modern, professional **resume builder web application** called **resumebuilder.io** that helps users create ATS-friendly, beautifully designed resumes in minutes. The application should be intuitive, visually appealing, and support multiple subscription tiers with premium features.
+Build a modern, professional **resume builder web application** called **createresume.co** that helps users create ATS-friendly, beautifully designed resumes in minutes. The application should be intuitive, visually appealing, and support multiple subscription tiers with premium features.
 
 **Tech Stack:**
 - **Frontend Framework**: Next.js 16+ (App Router)
@@ -26,7 +26,7 @@ Build a modern, professional **resume builder web application** called **resumeb
 ### Typography
 - **Headings**: Bold, modern sans-serif
 - **Body**: Clean, readable text
-- **Brand Name**: "resumebuilder.io" - always lowercase with .io
+- **Brand Name**: "createresume.co" - always lowercase with .io
 
 ### Visual Style
 - **Modern & Clean**: Minimalist design with plenty of white space
@@ -45,7 +45,7 @@ Landing page that converts visitors into users. Showcase value proposition, feat
 ### Layout Structure
 
 #### **Header (Sticky)**
-- **Left**: Logo (FileText icon + "resumebuilder.io" text)
+- **Left**: Logo (FileText icon + "createresume.co" text)
 - **Right**: 
   - "Login" button (ghost style)
   - "Sign Up" button (primary blue)
@@ -192,7 +192,7 @@ Main workspace where users create and edit their resumes with live preview.
 #### **Top Header Bar**
 - **Left**:
   - Profile picture button (or User icon) → opens account page
-  - "resumebuilder.io" logo
+  - "createresume.co" logo
   - "| Resume Builder" text
   - "Guest Mode" badge (if not logged in)
 

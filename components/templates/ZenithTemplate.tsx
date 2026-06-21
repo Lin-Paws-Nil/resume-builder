@@ -13,8 +13,8 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
         return null; // Handled in header
       case "summary":
         return (
-          <section>
-            <h2 className="font-bold uppercase mb-2 text-gray-900">
+          <section className="mt-5">
+            <h2 className="text-sm font-bold uppercase mb-2 text-gray-900">
               {" "}
               {displayName}
               {""}{" "}
@@ -27,20 +27,20 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
         );
       case "experiences":
         return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
+          <section className="mt-5">
+            <h2 className="text-sm font-bold uppercase mb-3 text-gray-900">
               {" "}
               {displayName}
               {""}{" "}
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {" "}
               {""}{" "}
               {data.map((exp: any) => (
                 <div key={exp.id}>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-semibold text-gray-900 text-xs">
                         {" "}
                         {exp.position}
                         {""}{" "}
@@ -68,8 +68,8 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
         );
       case "education":
         return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
+          <section className="mt-5">
+            <h2 className="text-sm font-bold uppercase mb-3 text-gray-900">
               {" "}
               {displayName}
               {""}{" "}
@@ -79,7 +79,7 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
               {""}{" "}
               {data.map((edu: any) => (
                 <div key={edu.id}>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 text-xs">
                     {" "}
                     {edu.degree 
                       ? (edu.field ? `${edu.degree} in ${edu.field}` : edu.degree)
@@ -100,8 +100,8 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
         );
       case "projects":
         return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
+          <section className="mt-5">
+            <h2 className="text-sm font-bold uppercase mb-3 text-gray-900">
               {" "}
               {displayName}
               {""}{" "}
@@ -111,7 +111,7 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
               {""}{" "}
               {data.map((proj: any) => (
                 <div key={proj.id}>
-                  <h3 className="font-bold text-gray-900">{proj.name} </h3>
+                  <h3 className="font-semibold text-gray-900 text-xs">{proj.name} </h3>
                   <div className="text-gray-700 text-xs">
                     {" "}
                     {renderHTML(proj.description)}
@@ -123,8 +123,8 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
         );
       case "certifications":
         return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
+          <section className="mt-5">
+            <h2 className="text-sm font-bold uppercase mb-3 text-gray-900">
               {" "}
               {displayName}
               {""}{" "}
@@ -139,10 +139,11 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
                     {cert.name}
                     {""}{" "}
                   </span>
-                  <span className="text-gray-700 ml-2 text-xs">
-                    {" "}
-                    - {cert.issuer} ({cert.date}) {""}{" "}
-                  </span>
+                  {(cert.issuer || cert.date) && (
+                    <span className="text-gray-700 ml-2 text-xs">
+                      {cert.issuer && `– ${cert.issuer}`}{cert.issuer && cert.date ? ' ' : ''}{cert.date && `(${cert.date})`}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -150,8 +151,8 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
         );
       case "hobbies":
         return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
+          <section className="mt-5">
+            <h2 className="text-sm font-bold uppercase mb-3 text-gray-900">
               {" "}
               {displayName}
               {""}{" "}
@@ -169,78 +170,56 @@ export function ZenithTemplate({ resume }: ZenithTemplateProps) {
   };
   return (
     <div className="font-sans bg-white">
-      <div className="grid grid-cols-4 gap-0">
-        {" "}
-        {""} {/* Left Column - Photo, Summary, Experience, Education */}
-        <div className="col-span-3 p-6 space-y-6">
-          {" "}
-          {""} {/* Header with Photo Placeholder */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="font-bold text-gray-600 text-xs">
-                {" "}
-                {""}{" "}
-                {(resume.personalInfo.fullName || "Y").charAt(0).toUpperCase()}
-                {""}{" "}
-              </span>
-            </div>
-            <div>
-              <h1 className="font-bold text-gray-900">
-                {" "}
-                {""} {resume.personalInfo.fullName || "Your Name"}
-                {""}{" "}
-              </h1>
-              <p className="text-gray-700 text-xs">
-                {" "}
-                {""} {resume.experiences?.[0]?.position || "Your Title"}
-                {""}{" "}
-              </p>
-            </div>
-          </div>
-          {""}{" "}
-          <TemplateSectionRenderer
-            resume={resume}
-            renderSection={renderSection}
-          />
-        </div>
-        {""} {/* Right Column - Details & Skills */}
-        <div className="col-span-1 bg-gray-100 p-6 space-y-6">
-          <div>
-            <h2 className="font-bold uppercase mb-2 text-gray-900">Details </h2>
-            <div className="space-y-2 text-gray-700 text-xs">
-              {" "}
-              {""}{" "}
-              {resume.personalInfo.email && <p>{resume.personalInfo.email} </p>}
-              {""}{" "}
-              {resume.personalInfo.phone && <p>{resume.personalInfo.phone} </p>}
-              {""}{" "}
-              {resume.personalInfo.location && (
-                <p>{resume.personalInfo.location} </p>
-              )}
-            </div>
-          </div>
-          {""}{" "}
-          {resume.skills.length > 0 && (
-            <div>
-              <h2 className="font-bold uppercase mb-2 text-gray-900">
-                {" "}
-                Skills{""}{" "}
-              </h2>
-              {""}{" "}
-              <ul className="list-disc list-inside space-y-1 text-gray-700">
-                {" "}
-                {""}{" "}
-                {resume.skills.flatMap((skill) =>
-                  skill.items.map((item, idx) => (
-                    <li key={`${skill.id}-${idx}`}>{item}</li>
-                  )),
-                )}
-                {""}{" "}
-              </ul>
-            </div>
+      {/* Header */}
+      <div className="mb-5">
+        <div className={resume.showProfileImage && resume.profileImage ? "flex items-center gap-4" : ""}>
+          {resume.showProfileImage && resume.profileImage && (
+            <img
+              src={resume.profileImage}
+              alt={resume.personalInfo.fullName || "Profile"}
+              className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+            />
           )}
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">
+              {resume.personalInfo.fullName || "Your Name"}
+            </h1>
+            <p className="text-gray-600 text-xs">
+              {resume.experiences?.[0]?.position || "Your Title"}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-600">
+          {resume.personalInfo.email && <span>{resume.personalInfo.email}</span>}
+          {resume.personalInfo.phone && <span>{resume.personalInfo.phone}</span>}
+          {resume.personalInfo.location && <span>{resume.personalInfo.location}</span>}
         </div>
       </div>
+
+      {/* Skills as inline tags */}
+      {resume.skills.length > 0 && (
+        <div className="mb-5">
+          <h2 className="text-sm font-bold uppercase mb-2 text-gray-900">Skills</h2>
+          <div className="flex flex-wrap gap-1.5">
+            {resume.skills.flatMap((skill) =>
+              skill.items.map((item, idx) => (
+                <span
+                  key={`${skill.id}-${idx}`}
+                  className="px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-700"
+                >
+                  {item}
+                </span>
+              )),
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Sections */}
+      <TemplateSectionRenderer
+        resume={resume}
+        renderSection={renderSection}
+      />
     </div>
   );
 }

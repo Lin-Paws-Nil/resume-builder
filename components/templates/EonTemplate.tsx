@@ -13,7 +13,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         return null; // Handled in header
       case "summary":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -27,7 +27,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         );
       case "experiences":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -40,7 +40,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
                 <div key={exp.id}>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-sm">
                         {" "}
                         {exp.position.toUpperCase()}
                         {""}{" "}
@@ -68,7 +68,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         );
       case "education":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -79,7 +79,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
               {""}{" "}
               {data.map((edu: any) => (
                 <div key={edu.id}>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 text-sm">
                     {" "}
                     {edu.degree 
                       ? (edu.field ? `${edu.degree.toUpperCase()} - ${edu.field.toUpperCase()}` : edu.degree.toUpperCase())
@@ -100,7 +100,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         );
       case "skills":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -134,7 +134,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         );
       case "projects":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -157,7 +157,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         );
       case "certifications":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -173,10 +173,11 @@ export function EonTemplate({ resume }: EonTemplateProps) {
                     {cert.name}
                     {""}{" "}
                   </span>
-                  <span className="text-gray-700 ml-2 text-xs">
-                    {" "}
-                    - {cert.issuer} ({cert.date}) {""}{" "}
-                  </span>
+                  {(cert.issuer || cert.date) && (
+                    <span className="text-gray-700 ml-2 text-xs">
+                      {cert.issuer && `– ${cert.issuer}`}{cert.issuer && cert.date ? ' ' : ''}{cert.date && `(${cert.date})`}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -184,7 +185,7 @@ export function EonTemplate({ resume }: EonTemplateProps) {
         );
       case "hobbies":
         return (
-          <section>
+          <section className="mb-5">
             <h2 className="font-bold uppercase border-b-2 border-gray-900 pb-1 mb-3 text-gray-900">
               {" "}
               {""} {displayName}
@@ -203,45 +204,26 @@ export function EonTemplate({ resume }: EonTemplateProps) {
   };
   return (
     <div className="font-sans bg-white">
-      <div className="grid grid-cols-5 gap-0">
-        {" "}
-        {""} {/* Left Column - Main Content */}
-        <div className="col-span-4 p-6 space-y-6">
-          {" "}
-          {""} {/* Header */}
-          <div>
-            <h1 className="font-bold uppercase text-gray-900 mb-2">
-              {" "}
-              {""} {resume.personalInfo.fullName || "Your Name"}
-              {""}{" "}
-            </h1>
-            <p className="text-gray-700 text-xs">
-              {" "}
-              {""} {resume.experiences?.[0]?.position || "Your Title"}
-              {""}{" "}
-            </p>
-          </div>
-          {""}{" "}
-          <TemplateSectionRenderer
-            resume={resume}
-            renderSection={renderSection}
-          />
-        </div>
-        {""} {/* Right Column - Contact */}
-        <div className="col-span-1 bg-white border-l border-gray-200 p-6">
-          <div className="text-gray-700 space-y-2 text-xs">
-            {" "}
-            {""}{" "}
-            {resume.personalInfo.location && (
-              <p>{resume.personalInfo.location} </p>
-            )}
-            {""}{" "}
-            {resume.personalInfo.phone && <p>{resume.personalInfo.phone} </p>}
-            {""}{" "}
-            {resume.personalInfo.email && <p>{resume.personalInfo.email} </p>}
-          </div>
+      {/* Header */}
+      <div className="border-b-2 border-gray-900 pb-4 mb-5">
+        <h1 className="text-xl font-bold uppercase text-gray-900 mb-1">
+          {resume.personalInfo.fullName || "Your Name"}
+        </h1>
+        <p className="text-gray-600 text-xs mb-2">
+          {resume.experiences?.[0]?.position || "Your Title"}
+        </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
+          {resume.personalInfo.email && <span>{resume.personalInfo.email}</span>}
+          {resume.personalInfo.phone && <span>{resume.personalInfo.phone}</span>}
+          {resume.personalInfo.location && <span>{resume.personalInfo.location}</span>}
         </div>
       </div>
+
+      {/* Sections */}
+      <TemplateSectionRenderer
+        resume={resume}
+        renderSection={renderSection}
+      />
     </div>
   );
 }

@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { EnhancePopup } from '@/components/ui/enhance-popup';
-import { Sparkles, Loader2, SpellCheck, FileText } from 'lucide-react';
+import { Sparkles, Loader2, SpellCheck, FileText, Lock, Crown } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/use-auth';
+import { useSubscription } from '@/lib/hooks/use-subscription';
 
 interface EnhanceableTextFieldProps {
   value: string;
@@ -31,7 +34,7 @@ export function EnhanceableTextField({
   context,
   className,
 }: EnhanceableTextFieldProps) {
-  const [showEnhanceButton, setShowEnhanceButton] = useState(false);
+  const router = useRouter();
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isFixingSpelling, setIsFixingSpelling] = useState(false);
   const [isFixingGrammar, setIsFixingGrammar] = useState(false);
@@ -40,11 +43,10 @@ export function EnhanceableTextField({
   const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const fieldRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
+  const { user, isGuest } = useAuth();
+  const { subscription } = useSubscription(user?.id || null);
 
-  // Show enhance button when there's content
-  useEffect(() => {
-    setShowEnhanceButton(value.trim().length > 0);
-  }, [value]);
+  const isPremium = !!(user && !isGuest && subscription?.canDownload);
 
   // Extract plain text from HTML
   const getPlainText = (html: string): string => {
@@ -54,6 +56,20 @@ export function EnhanceableTextField({
   };
 
   const handleEnhance = async () => {
+    // Check premium access first
+    if (!isPremium) {
+      if (!user || isGuest) {
+        alert('Please log in to use AI enhancement features.');
+        router.push('/login?redirect=' + encodeURIComponent('/builder'));
+      } else {
+        const shouldUpgrade = confirm('AI enhancement requires a premium subscription. Would you like to upgrade your plan?');
+        if (shouldUpgrade) {
+          router.push('/subscribe?return=' + encodeURIComponent('/builder'));
+        }
+      }
+      return;
+    }
+
     // Extract plain text from HTML for API call
     const plainText = type === 'textarea' ? getPlainText(value) : value;
     
@@ -173,6 +189,20 @@ export function EnhanceableTextField({
   };
 
   const handleFixSpelling = async () => {
+    // Check premium access first
+    if (!isPremium) {
+      if (!user || isGuest) {
+        alert('Please log in to use spelling correction features.');
+        router.push('/login?redirect=' + encodeURIComponent('/builder'));
+      } else {
+        const shouldUpgrade = confirm('Spelling correction requires a premium subscription. Would you like to upgrade your plan?');
+        if (shouldUpgrade) {
+          router.push('/subscribe?return=' + encodeURIComponent('/builder'));
+        }
+      }
+      return;
+    }
+
     // Extract plain text from HTML for API call
     const plainText = type === 'textarea' ? getPlainText(value) : value;
     
@@ -236,6 +266,20 @@ export function EnhanceableTextField({
   };
 
   const handleFixGrammar = async () => {
+    // Check premium access first
+    if (!isPremium) {
+      if (!user || isGuest) {
+        alert('Please log in to use grammar correction features.');
+        router.push('/login?redirect=' + encodeURIComponent('/builder'));
+      } else {
+        const shouldUpgrade = confirm('Grammar correction requires a premium subscription. Would you like to upgrade your plan?');
+        if (shouldUpgrade) {
+          router.push('/subscribe?return=' + encodeURIComponent('/builder'));
+        }
+      }
+      return;
+    }
+
     // Extract plain text from HTML for API call
     const plainText = type === 'textarea' ? getPlainText(value) : value;
     
@@ -320,16 +364,29 @@ export function EnhanceableTextField({
           )}
         </div>
       </div>
-      {showEnhanceButton && (
+      
+      {/* Premium AI Features Box - Always Visible */}
+      <div className="border-2 border-purple-200 rounded-lg p-3 bg-gradient-to-br from-purple-50/50 to-blue-50/50">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-purple-600" />
+            <span className="text-xs font-semibold text-purple-900">AI-Powered Features</span>
+          </div>
+          {isPremium ? (
+            <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Premium</span>
+          ) : (
+            <Lock className="h-3 w-3 text-amber-600" />
+          )}
+        </div>
         <div className="flex justify-end gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleFixSpelling}
-            disabled={isFixingSpelling || isFixingGrammar || isEnhancing}
-            className="h-8 px-3 text-xs bg-white hover:bg-green-50 border-green-300 text-green-600 hover:text-green-700"
-            title="Fix spelling errors"
+            disabled={!value.trim() || isFixingSpelling || isFixingGrammar || isEnhancing}
+            className="h-8 px-3 text-xs bg-white hover:bg-green-50 border-green-300 text-green-600 hover:text-green-700 disabled:opacity-50"
+            title={isPremium ? "Fix spelling errors" : "Premium feature - Upgrade to use"}
           >
             {isFixingSpelling ? (
               <>
@@ -348,9 +405,9 @@ export function EnhanceableTextField({
             variant="outline"
             size="sm"
             onClick={handleFixGrammar}
-            disabled={isFixingSpelling || isFixingGrammar || isEnhancing}
-            className="h-8 px-3 text-xs bg-white hover:bg-purple-50 border-purple-300 text-purple-600 hover:text-purple-700"
-            title="Fix grammar errors"
+            disabled={!value.trim() || isFixingSpelling || isFixingGrammar || isEnhancing}
+            className="h-8 px-3 text-xs bg-white hover:bg-purple-50 border-purple-300 text-purple-600 hover:text-purple-700 disabled:opacity-50"
+            title={isPremium ? "Fix grammar errors" : "Premium feature - Upgrade to use"}
           >
             {isFixingGrammar ? (
               <>
@@ -369,9 +426,9 @@ export function EnhanceableTextField({
             variant="outline"
             size="sm"
             onClick={handleEnhance}
-            disabled={isEnhancing || isFixingSpelling || isFixingGrammar}
-            className="h-8 px-3 text-xs bg-white hover:bg-blue-50 border-blue-300 text-blue-600 hover:text-blue-700"
-            title="Get AI-enhanced variations"
+            disabled={!value.trim() || isEnhancing || isFixingSpelling || isFixingGrammar}
+            className="h-8 px-3 text-xs bg-white hover:bg-blue-50 border-blue-300 text-blue-600 hover:text-blue-700 disabled:opacity-50"
+            title={isPremium ? "Get AI-enhanced variations" : "Premium feature - Upgrade to use"}
           >
             {isEnhancing ? (
               <>
@@ -386,7 +443,8 @@ export function EnhanceableTextField({
             )}
           </Button>
         </div>
-      )}
+      </div>
+
       {showPopup && (
         <>
           <div

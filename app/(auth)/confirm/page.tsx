@@ -26,10 +26,10 @@ function ConfirmForm() {
       try {
         const supabase = createClient();
 
-        // Verify the token
+        // Verify the token using token hash method
         const { data, error } = await supabase.auth.verifyOtp({
-          token: token,
-          type: type as 'signup' | 'email',
+          token_hash: token,
+          type: type as 'signup' | 'email' | 'recovery',
         });
 
         if (error) {
@@ -39,13 +39,19 @@ function ConfirmForm() {
         }
 
         if (data.user) {
-          setStatus('success');
-          setMessage('Email confirmed successfully! Redirecting to builder...');
-          
-          // Wait a moment, then redirect
-          setTimeout(() => {
-            router.push('/builder');
-          }, 2000);
+          if (type === 'recovery') {
+            setStatus('success');
+            setMessage('Identity verified! Redirecting to set new password...');
+            setTimeout(() => {
+              router.push('/reset-password');
+            }, 1500);
+          } else {
+            setStatus('success');
+            setMessage('Email confirmed successfully! Redirecting to builder...');
+            setTimeout(() => {
+              router.push('/builder');
+            }, 2000);
+          }
         } else {
           setStatus('error');
           setMessage('Confirmation failed - no user data received');
@@ -67,7 +73,7 @@ function ConfirmForm() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
               <FileText className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">resumebuilder.io</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">createresume.co</h1>
             <p className="text-gray-600">Email Confirmation</p>
           </div>
 

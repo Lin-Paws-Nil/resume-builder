@@ -135,7 +135,7 @@ export function LinkedInImport() {
                   Import your resume from your LinkedIn profile. This feature is available on paid plans.
                 </p>
                 <Button
-                  onClick={() => router.push('/account?tab=payment')}
+                  onClick={() => router.push('/subscribe?return=' + encodeURIComponent('/builder'))}
                   className="bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   <Crown className="h-4 w-4 mr-2" />
@@ -145,7 +145,7 @@ export function LinkedInImport() {
             ) : (
               <>
                 <p className="text-sm text-muted-foreground">
-                  Sign in with LinkedIn to import your <strong>name, email, and profile link</strong>. For experience, education, and skills, add them below or upload a LinkedIn data export (ZIP).
+                  Sign in with LinkedIn to import your <strong>name, email, and profile picture</strong>. For experience, education, and skills, add them manually or upload a LinkedIn data export (ZIP).
                 </p>
                 <Button
                   type="button"

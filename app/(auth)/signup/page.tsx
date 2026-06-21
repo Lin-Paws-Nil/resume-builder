@@ -2,11 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { FileText, Lock, Mail, User } from 'lucide-react';
+import { GradientButton } from '@/components/ui/gradient-button';
+import { FileText, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { Spinner } from '@/components/ui/spinner';
+
+const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm transition-colors focus-within:border-blue-400/70 focus-within:bg-blue-500/10">
+    {children}
+  </div>
+);
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -16,6 +22,7 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -160,115 +167,143 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 relative overflow-hidden p-4">
+      <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:54px_54px] opacity-30"></div>
+      
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center gap-3 mb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-3 rounded-xl shadow-lg">
               <FileText className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">resumebuilder.io</h1>
-            <p className="text-gray-600">Create your account</p>
+            <h1 className="text-3xl font-bold text-white">createresume.co</h1>
           </div>
+          <h2 className="text-4xl font-bold text-white mb-2">Create Account</h2>
+          <p className="text-gray-300">Start building your professional resume today</p>
+        </div>
 
-          <form onSubmit={handleSignup} className="space-y-4">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
+          <form onSubmit={handleSignup} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Username
               </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
+              <GlassInputWrapper>
+                <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Choose a username"
-                  className="pl-10"
+                  className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none text-white placeholder:text-gray-400"
                   required
                 />
-              </div>
+              </GlassInputWrapper>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-200 mb-2">
                   First Name
                 </label>
-                <Input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="First name"
-                />
+                <GlassInputWrapper>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none text-white placeholder:text-gray-400"
+                  />
+                </GlassInputWrapper>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-200 mb-2">
                   Last Name
                 </label>
-                <Input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Last name"
-                />
+                <GlassInputWrapper>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Last name"
+                    className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none text-white placeholder:text-gray-400"
+                  />
+                </GlassInputWrapper>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+              <label className="block text-sm font-medium text-gray-200 mb-2">
+                Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
+              <GlassInputWrapper>
+                <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="pl-10"
+                  className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none text-white placeholder:text-gray-400"
                   required
                 />
-              </div>
+              </GlassInputWrapper>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10"
-                  required
-                  minLength={6}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+              <GlassInputWrapper>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none text-white placeholder:text-gray-400"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+                    )}
+                  </button>
+                </div>
+              </GlassInputWrapper>
+              <p className="text-xs text-gray-400 mt-2">Minimum 6 characters</p>
             </div>
 
-            <Button
+            <GradientButton
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5"
+              className="w-full px-8 py-4"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
-            </Button>
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Spinner size={16} invert />
+                  Creating account...
+                </div>
+              ) : (
+                'Create Account'
+              )}
+            </GradientButton>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-300">
               Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <Link href="/login" className="text-blue-400 hover:text-blue-300 font-semibold hover:underline transition-colors">
                 Sign in
               </Link>
             </p>

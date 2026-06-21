@@ -1,6 +1,78 @@
 import type { ResumeData, Experience, Education, Skill } from '@/lib/types/resume';
 
-/** LinkedIn Verified on LinkedIn /identityMe API response (basic profile: r_profile_basicinfo). https://learn.microsoft.com/en-us/linkedin/consumer/integrations/verified-on-linkedin/api-reference/identity-me */
+/**
+ * OpenID Connect UserInfo response from /v2/userinfo
+ * @see https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2
+ */
+export interface OpenIDUserInfo {
+  sub?: string; // User identifier (optional in response)
+  name?: string; // Full name
+  given_name?: string; // First name
+  family_name?: string; // Last name
+  picture?: string; // Profile picture URL
+  locale?: string; // Locale (e.g., "en-US")
+  email?: string; // Email address (optional)
+  email_verified?: boolean; // Email verification status (optional)
+}
+
+const DEFAULT_SECTION_ORDER = ['personalInfo', 'summary', 'experiences', 'education', 'skills', 'projects', 'certifications', 'hobbies'];
+const DEFAULT_SECTION_NAMES: Record<string, string> = {
+  personalInfo: 'Personal Information',
+  summary: 'Summary',
+  experiences: 'Experience',
+  education: 'Education',
+  skills: 'Skills',
+  projects: 'Projects',
+  certifications: 'Certifications',
+  hobbies: 'Hobbies',
+};
+
+/**
+ * Map LinkedIn OpenID Connect userinfo to ResumeData.
+ * Returns: name, email, profile picture URL. No experience, education, or skills
+ * (user can add those manually or via LinkedIn data export ZIP).
+ */
+export function mapOpenIDToResume(userInfo: OpenIDUserInfo): ResumeData {
+  const fullName = userInfo.name || 
+    [userInfo.given_name, userInfo.family_name].filter(Boolean).join(' ') || 
+    'Unknown';
+  const email = userInfo.email || '';
+  
+  // Extract location from locale (e.g., "en-US" -> "US")
+  let location = '';
+  if (userInfo.locale && typeof userInfo.locale === 'string') {
+    const parts = userInfo.locale.split('-');
+    location = parts.length > 1 ? parts[1] : '';
+  }
+
+  const now = new Date().toISOString();
+  return {
+    id: crypto.randomUUID(),
+    title: `Resume from LinkedIn - ${fullName}`,
+    personalInfo: {
+      fullName,
+      email,
+      phone: '',
+      location,
+      linkedin: undefined, // OpenID doesn't provide vanityName
+    },
+    summary: '',
+    experiences: [] as Experience[],
+    education: [] as Education[],
+    skills: [] as Skill[],
+    projects: [],
+    certifications: [],
+    hobbies: [],
+    customSections: [],
+    sectionOrder: DEFAULT_SECTION_ORDER,
+    sectionNames: DEFAULT_SECTION_NAMES,
+    templateId: 'aurora',
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+/** LinkedIn Verified on LinkedIn /identityMe API response (DEPRECATED - use OpenID Connect instead). */
 export interface IdentityMeResponse {
   id?: string;
   lastRefreshedAt?: number;
@@ -18,21 +90,9 @@ function firstLocale(obj: { localized?: Record<string, string> } | undefined): s
   return obj.localized.en_US ?? obj.localized.en ?? (Object.values(obj.localized)[0] as string) ?? '';
 }
 
-const DEFAULT_SECTION_ORDER = ['personalInfo', 'summary', 'experiences', 'education', 'skills', 'projects', 'certifications', 'hobbies'];
-const DEFAULT_SECTION_NAMES: Record<string, string> = {
-  personalInfo: 'Personal Information',
-  summary: 'Summary',
-  experiences: 'Experience',
-  education: 'Education',
-  skills: 'Skills',
-  projects: 'Projects',
-  certifications: 'Certifications',
-  hobbies: 'Hobbies',
-};
-
 /**
- * Map LinkedIn Verified on LinkedIn /identityMe (r_profile_basicinfo) to ResumeData.
- * Lite tier returns only: name, email, profileUrl, profilePicture. No experience, education, or skills—user can add those manually or via LinkedIn data export (ZIP).
+ * Map LinkedIn Verified on LinkedIn /identityMe (DEPRECATED) to ResumeData.
+ * @deprecated Use mapOpenIDToResume with /v2/userinfo instead
  */
 export function mapIdentityMeToResume(me: IdentityMeResponse, userEmail?: string): ResumeData {
   const first = firstLocale(me.basicInfo?.firstName);

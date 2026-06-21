@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -20,37 +20,64 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(true);
   const router = useRouter();
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient()); // Create once, reuse
+  const supabase = supabaseRef.current;
+  const checkingSession = useRef(false); // Prevent duplicate checks
+  const mounted = useRef(true); // Track if component is mounted
 
   useEffect(() => {
-    // Check initial session
-    checkSession();
-
-    // Listen for auth changes
+    console.log('[useAuth] 🚀 Initializing auth hook');
+    mounted.current = true;
+    
+    // Listen for auth changes - this handles ALL session management
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted.current) {
+        console.log('[useAuth] ⚠️ Component unmounted, ignoring auth change');
+        return;
+      }
+      
+      console.log('[useAuth] 🔔 Auth state changed:', event, 'hasSession:', !!session);
       try {
-        if (event === 'SIGNED_IN' && session) {
+        if (event === 'INITIAL_SESSION') {
+          // Initial page load - check if session exists
+          if (session?.user) {
+            console.log('[useAuth] ✅ Initial session found, loading profile');
+            await loadUserProfile(session.user);
+          } else {
+            console.log('[useAuth] ❌ No initial session, setting as guest');
+            setUser(null);
+            setIsGuest(true);
+            setLoading(false);
+          }
+        } else if (event === 'SIGNED_IN' && session) {
+          console.log('[useAuth] ✅ User signed in, loading profile');
           await loadUserProfile(session.user);
           setLoading(false);
         } else if (event === 'SIGNED_OUT') {
+          console.log('[useAuth] 🚪 User signed out');
           setUser(null);
           setIsGuest(true);
           setLoading(false);
         } else if (event === 'TOKEN_REFRESHED' && session) {
+          console.log('[useAuth] 🔄 Token refreshed, updating profile');
           await loadUserProfile(session.user);
           setLoading(false);
         }
       } catch (error) {
-        console.error('Auth state change error:', error);
-        setLoading(false);
+        console.error('[useAuth] ❌ Auth state change error:', error);
+        if (mounted.current) {
+          setLoading(false);
+        }
       }
     });
 
     // Set up session timeout check
     const timeoutInterval = setInterval(() => {
-      checkSessionTimeout();
+      if (mounted.current) {
+        checkSessionTimeout();
+      }
     }, 60000); // Check every minute
 
     // Activity tracking for session timeout
@@ -66,92 +93,160 @@ export function useAuth() {
     });
 
     return () => {
+      console.log('[useAuth] 🧹 Cleaning up auth hook');
+      mounted.current = false;
       subscription.unsubscribe();
       clearInterval(timeoutInterval);
       activityEvents.forEach((event) => {
         window.removeEventListener(event, updateActivity);
       });
     };
-  }, []);
+  }, [supabase]); // Add supabase as dependency
 
   const checkSession = async () => {
+    console.log('[useAuth] checkSession called, checking lock...');
+    console.log('[useAuth] Lock status:', { checking: checkingSession.current, hasUser: !!user, isGuest });
+    
+    // Prevent multiple simultaneous session checks
+    if (checkingSession.current) {
+      console.log('[useAuth] ⚠️ Session check already in progress, SKIPPING');
+      return;
+    }
+    
+    // Skip if user is already loaded
+    if (user && !isGuest) {
+      console.log('[useAuth] ✅ User already loaded, SKIPPING session check');
+      return;
+    }
+    
+    console.log('[useAuth] 🔒 Acquiring lock for session check...');
+    checkingSession.current = true;
+    
     try {
-      // Don't use timeout for session check - let it complete naturally
-      // If Supabase is slow, it's better to wait than to timeout
-      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log('=== [useAuth] CHECKING SESSION (LOCKED) ===');
+      console.log('[useAuth] All cookies:', document.cookie);
+      console.log('[useAuth] Cookie names:', document.cookie.split(';').map(c => c.trim().split('=')[0]));
       
-      if (error || !session) {
+      // Use getSession() for faster response (reads from cookies)
+      console.log('[useAuth] ⏳ Calling supabase.auth.getSession()...');
+      const startTime = Date.now();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      const elapsed = Date.now() - startTime;
+      
+      console.log(`[useAuth] ✅ getSession() COMPLETE in ${elapsed}ms`);
+      console.log('[useAuth] Result:', { 
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
+        expiresAt: session?.expires_at,
+        hasError: !!error,
+        errorMessage: error?.message,
+      });
+      
+      if (error) {
+        console.error('[useAuth] ❌ getSession() ERROR:', error);
+      }
+      
+      if (error || !session?.user) {
+        console.log('[useAuth] ❌ No valid session, setting as guest');
         setUser(null);
         setIsGuest(true);
         setLoading(false);
         return;
       }
 
-      // Check if session is expired
-      const expiresAt = session.expires_at;
-      if (expiresAt) {
-        const now = Math.floor(Date.now() / 1000);
-        if (expiresAt < now) {
-          supabase.auth.signOut().catch(err => console.error('Sign out error:', err));
-          setUser(null);
-          setIsGuest(true);
-          setLoading(false);
-          return;
-        }
-      }
-
+      console.log('[useAuth] ✅ Valid session found, loading profile...');
       await loadUserProfile(session.user);
     } catch (error: any) {
-      console.error('Session check error:', error);
-      // Allow app to continue even if session check fails
+      console.error('[useAuth] ❌ Session check EXCEPTION:', error);
       setUser(null);
       setIsGuest(true);
       setLoading(false);
+    } finally {
+      console.log('[useAuth] 🔓 Releasing lock');
+      checkingSession.current = false;
     }
   };
 
   const loadUserProfile = async (authUser: User) => {
+    if (!mounted.current) {
+      console.log('[useAuth] ⚠️ Component unmounted, skipping profile load');
+      return;
+    }
+    
     try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('username, first_name, last_name, email')
-        .eq('id', authUser.id)
-        .single();
+      console.log('[useAuth] 📋 Loading profile for user:', authUser.id);
+      console.log('[useAuth] ⏳ Querying profiles table...');
+      
+      const startTime = Date.now();
+      const result = await Promise.race([
+        supabase
+          .from('profiles')
+          .select('username, first_name, last_name, email')
+          .eq('id', authUser.id)
+          .single(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile query timeout')), 3000)
+        )
+      ]);
+      
+      if (!mounted.current) {
+        console.log('[useAuth] ⚠️ Component unmounted after query, ignoring result');
+        return;
+      }
+      
+      const elapsed = Date.now() - startTime;
+      console.log(`[useAuth] ✅ Profile query completed in ${elapsed}ms`);
+      
+      const { data: profile, error } = result as any;
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Profile load error:', error);
+        console.error('[useAuth] ⚠️ Profile load error:', error);
         // If profile doesn't exist, still allow user to proceed with basic info
-        setUser({
+        const userData = {
           id: authUser.id,
           email: authUser.email || '',
           username: undefined,
           firstName: undefined,
           lastName: undefined,
-        });
+        };
+        console.log('[useAuth] ℹ️ Using basic user info (no profile)');
+        setUser(userData);
         setIsGuest(false);
         setLoading(false);
         return;
       }
 
-      setUser({
+      const userData = {
         id: authUser.id,
         email: authUser.email || profile?.email || '',
         username: profile?.username,
         firstName: profile?.first_name || undefined,
         lastName: profile?.last_name || undefined,
-      });
+      };
+      
+      console.log('[useAuth] ✅ User profile loaded successfully, setting isGuest=false');
+      setUser(userData);
       setIsGuest(false);
       setLoading(false);
-    } catch (error) {
-      console.error('Error loading profile:', error);
-      // Even on error, set basic user info so app can continue
-      setUser({
+    } catch (error: any) {
+      if (!mounted.current) {
+        console.log('[useAuth] ⚠️ Component unmounted during error, ignoring');
+        return;
+      }
+      
+      console.error('[useAuth] ❌ Profile loading EXCEPTION:', error);
+      // Even on error/timeout, set basic user info so app can continue
+      const userData = {
         id: authUser.id,
         email: authUser.email || '',
         username: undefined,
         firstName: undefined,
         lastName: undefined,
-      });
+      };
+      console.log('[useAuth] 🆘 Timeout/error - using basic auth user data');
+      setUser(userData);
       setIsGuest(false);
       setLoading(false);
     }

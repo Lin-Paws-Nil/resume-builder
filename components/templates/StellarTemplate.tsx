@@ -1,219 +1,143 @@
 import type { ResumeData } from "@/lib/types/resume";
-import { TemplateSectionRenderer } from "./TemplateSectionRenderer";
 import { renderDescription } from "@/lib/utils/render-description";
 import { renderHTML } from "@/lib/utils/render-html";
 import { getTextColorForBackground } from "@/lib/utils/template-colors";
+
 interface StellarTemplateProps {
   resume: ResumeData;
 }
 
 export function StellarTemplate({ resume }: StellarTemplateProps) {
-  const renderSection = (sectionId: string, data: any, displayName: string) => {
-    switch (sectionId) {
-      case "personalInfo":
-        return null; // Handled in header
-      case "summary":
-        return (
-          <section>
-            <h2 className="font-bold uppercase mb-2 text-gray-900">
-              {" "}
-              {displayName}
-              {""}{" "}
-            </h2>
-            <div className="text-gray-700 leading-relaxed text-xs">
-              {" "}
-              {renderHTML(data)}
-            </div>
-          </section>
-        );
-      case "experiences":
-        return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
-              {" "}
-              {displayName}
-              {""}{" "}
-            </h2>
-            <div className="space-y-4">
-              {" "}
-              {""}{" "}
-              {data.map((exp: any) => (
-                <div key={exp.id}>
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <h3 className="font-bold text-gray-900">
-                        {" "}
-                        {exp.position}
-                        {""}{" "}
-                      </h3>
-                      <p className="text-gray-600 text-xs">{exp.company} </p>
-                    </div>
-                    <span className="text-gray-500 text-xs">
-                      {" "}
-                      {""} {exp.startDate} –{""}{" "}
-                      {exp.current ? "Current" : exp.endDate}
-                      {""}{" "}
-                    </span>
-                  </div>
-                  {""}{" "}
-                  {exp.description && (
-                    <div className="mt-2 text-gray-700 text-xs">
-                      {" "}
-                      {""} {renderDescription(exp.description)}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      case "projects":
-        return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
-              {" "}
-              {displayName}
-              {""}{" "}
-            </h2>
-            <div className="space-y-3">
-              {" "}
-              {""}{" "}
-              {data.map((proj: any) => (
-                <div key={proj.id}>
-                  <h3 className="font-bold text-gray-900">{proj.name} </h3>
-                  <div className="text-gray-700 text-xs">
-                    {" "}
-                    {renderHTML(proj.description)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      case "certifications":
-        return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
-              {" "}
-              {displayName}
-              {""}{" "}
-            </h2>
-            <div className="space-y-2">
-              {" "}
-              {""}{" "}
-              {data.map((cert: any) => (
-                <div key={cert.id}>
-                  <span className="font-semibold text-gray-900 text-xs">
-                    {" "}
-                    {cert.name}
-                    {""}{" "}
-                  </span>
-                  <span className="text-gray-700 ml-2 text-xs">
-                    {" "}
-                    - {cert.issuer} ({cert.date}) {""}{" "}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      case "hobbies":
-        return (
-          <section>
-            <h2 className="font-bold uppercase mb-3 text-gray-900">
-              {" "}
-              {displayName}
-              {""}{" "}
-            </h2>
-            <p className="text-gray-700 text-xs">
-              {" "}
-              {data.map((h: any) => h.name).join(",")}
-              {""}{" "}
-            </p>
-          </section>
-        );
-      default:
-        return null;
-    }
-  };
-  const sidebarColor = resume.templateColor || '#EFF6FF'; // Default blue-50
+  const sidebarColor = resume.templateColor || '#EFF6FF';
   const sidebarTextColor = getTextColorForBackground(sidebarColor);
 
   return (
-    <div className="font-sans bg-white">
-      <div className="grid grid-cols-5 gap-0">
-        {" "}
-        {""} {/* Left Column - Contact, Education, Skills */}
+    <div className="font-sans bg-white" style={{ display: 'block' }}>
+      {/* Header Section - Full Width - Should not break */}
+      <section 
+        data-section="header"
+        className="p-6 pb-4"
+        style={{ 
+          display: 'block',
+          backgroundColor: sidebarColor === 'transparent' ? '#EFF6FF' : sidebarColor,
+          color: sidebarTextColor,
+          pageBreakInside: 'avoid',
+          breakInside: 'avoid',
+        }}
+      >
         <div 
-          className="col-span-2 p-6 space-y-6"
+          className={resume.showProfileImage && resume.profileImage ? "flex items-center gap-4" : ""}
+          style={{ display: resume.showProfileImage && resume.profileImage ? 'flex' : 'block' }}
+        >
+          {resume.showProfileImage && resume.profileImage && (
+            <img
+              src={resume.profileImage}
+              alt={resume.personalInfo.fullName || "Profile"}
+              className="w-16 h-16 rounded-full object-cover border-2 flex-shrink-0"
+              style={{ borderColor: sidebarTextColor === '#FFFFFF' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)' }}
+            />
+          )}
+          <div style={{ display: 'block', flex: 1 }}>
+            <div style={{ display: 'block', position: 'relative' }}>
+              <div style={{ display: 'block' }}>
+                <h1 
+                  className="text-2xl font-bold mb-1"
+                  style={{ color: sidebarTextColor }}
+                >
+                  {resume.personalInfo.fullName || "Your Name"}
+                </h1>
+                <p 
+                  className="text-sm"
+                  style={{ color: sidebarTextColor }}
+                >
+                  {resume.experiences?.[0]?.position || "Your Title"}
+                </p>
+              </div>
+              {/* Contact Info - Top Right */}
+              <div 
+                className="text-xs text-right space-y-0.5"
+                style={{ 
+                  color: sidebarTextColor,
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                }}
+              >
+                {resume.personalInfo.email && (
+                  <p>{resume.personalInfo.email}</p>
+                )}
+                {resume.personalInfo.phone && (
+                  <p>{resume.personalInfo.phone}</p>
+                )}
+                {resume.personalInfo.location && (
+                  <p>{resume.personalInfo.location}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Summary - Below Name, Full Width */}
+        {resume.summary && (
+          <div 
+            className="mt-4 pt-3 border-t" 
+            style={{ 
+              display: 'block',
+              borderColor: sidebarTextColor === '#FFFFFF' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' 
+            }}
+          >
+            <div 
+              className="text-xs leading-relaxed"
+              style={{ color: sidebarTextColor }}
+            >
+              {renderHTML(resume.summary)}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Two Column Layout - Using CSS Grid */}
+      <div 
+        style={{ 
+          display: 'grid',
+          gridTemplateColumns: '40% 60%',
+          width: '100%',
+        }}
+      >
+        {/* Left Column - Education, Skills (with blue background extending full height) */}
+        <div 
           style={{ 
+            padding: '1.5rem 1rem 1.5rem 1.5rem',
             backgroundColor: sidebarColor === 'transparent' ? '#EFF6FF' : sidebarColor,
             color: sidebarTextColor,
           }}
         >
-          {" "}
-          {""} {/* Header */}
-          <div>
-            <h1 
-              className="font-bold mb-1"
-              style={{ color: sidebarTextColor }}
-            >
-              {" "}
-              {""} {resume.personalInfo.fullName || "Your Name"}
-              {""}{" "}
-            </h1>
-            <p 
-              className="text-xs"
-              style={{ color: sidebarTextColor }}
-            >
-              {" "}
-              {""} {resume.experiences?.[0]?.position || "Your Title"}
-              {""}{" "}
-            </p>
-          </div>
-          {""} {/* Contact */}
-          <div>
-            <h2 
-              className="font-bold uppercase mb-2"
-              style={{ color: sidebarTextColor }}
-            >
-              Contact 
-            </h2>
-            <div 
-              className="space-y-1 text-xs"
-              style={{ color: sidebarTextColor }}
-            >
-              {" "}
-              {""}{" "}
-              {resume.personalInfo.email && (
-                <p>📧 {resume.personalInfo.email} </p>
-              )}
-              {""}{" "}
-              {resume.personalInfo.phone && (
-                <p>📞 {resume.personalInfo.phone} </p>
-              )}
-              {""}{" "}
-              {resume.personalInfo.location && (
-                <p>📍 {resume.personalInfo.location} </p>
-              )}
-            </div>
-          </div>
-          {""} {/* Education */}
-          {""}{" "}
+          {/* Education */}
           {resume.education.length > 0 && (
-            <div>
+            <section data-section="education" style={{ display: 'block', marginBottom: '1.75rem' }}>
               <h2 
-                className="font-bold uppercase mb-2"
-                style={{ color: sidebarTextColor }}
+                className="font-bold uppercase mb-2 text-sm"
+                style={{ 
+                  display: 'block',
+                  color: sidebarTextColor,
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
+                }}
               >
-                {" "}
-                Education{""}{" "}
+                Education
               </h2>
-              <div className="space-y-3">
-                {" "}
-                {""}{" "}
+              <div style={{ display: 'block' }}>
                 {resume.education.map((edu) => (
-                  <div key={edu.id}>
+                  <div 
+                    key={edu.id} 
+                    className="education-item"
+                    style={{ 
+                      display: 'block',
+                      marginBottom: '0.75rem',
+                      pageBreakInside: 'avoid', 
+                      breakInside: 'avoid' 
+                    }}
+                  >
                     <p 
                       className="font-semibold text-xs"
                       style={{ color: sidebarTextColor }}
@@ -221,63 +145,232 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
                       {edu.degree 
                         ? (edu.field ? `${edu.degree} in ${edu.field}` : edu.degree)
                         : (edu.field || 'Education')
-                      }{" "}
+                      }
                     </p>
                     <p 
                       className="text-xs"
                       style={{ color: sidebarTextColor }}
                     >
-                      {edu.institution || ''} 
+                      {edu.institution || ''}
                     </p>
                     <p 
-                      className="text-xs"
+                      className="text-xs opacity-80"
                       style={{ color: sidebarTextColor }}
                     >
-                      {" "}
                       {edu.startDate} - {edu.endDate}
-                      {""}{" "}
                     </p>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
-          {""} {/* Skills */}
-          {""}{" "}
+
+          {/* Skills */}
           {resume.skills.length > 0 && (
-            <div>
+            <section data-section="skills" style={{ display: 'block', marginBottom: '1.75rem' }}>
               <h2 
-                className="font-bold uppercase mb-2"
-                style={{ color: sidebarTextColor }}
+                className="font-bold uppercase mb-2 text-sm"
+                style={{ 
+                  display: 'block',
+                  color: sidebarTextColor,
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
+                }}
               >
-                {" "}
-                Skills{""}{" "}
+                Skills
               </h2>
-              {""}{" "}
               <ul 
-                className="list-disc list-inside space-y-1"
-                style={{ color: sidebarTextColor }}
+                className="list-disc list-inside space-y-1 text-xs"
+                style={{ display: 'block', color: sidebarTextColor }}
               >
-                {" "}
-                {""}{" "}
                 {resume.skills.flatMap((skill) =>
                   skill.items.map((item, idx) => (
-                    <li key={`${skill.id}-${idx}`}>{item}</li>
+                    <li key={`${skill.id}-${idx}`} style={{ display: 'block' }}>{item}</li>
                   )),
                 )}
-                {""}{" "}
               </ul>
-            </div>
+            </section>
+          )}
+
+          {/* Certifications */}
+          {resume.certifications && resume.certifications.length > 0 && (
+            <section data-section="certifications" style={{ display: 'block', marginBottom: '1.75rem' }}>
+              <h2 
+                className="font-bold uppercase mb-2 text-sm"
+                style={{ 
+                  display: 'block',
+                  color: sidebarTextColor,
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
+                }}
+              >
+                Certifications
+              </h2>
+              <ul 
+                className="space-y-1.5 text-xs"
+                style={{ display: 'block', color: sidebarTextColor }}
+              >
+                {resume.certifications.map((cert) => (
+                  <li 
+                    key={cert.id} 
+                    className="certification-item"
+                    style={{ 
+                      display: 'block',
+                      marginBottom: '0.5rem',
+                      paddingLeft: '0.75rem',
+                      position: 'relative',
+                      pageBreakInside: 'avoid', 
+                      breakInside: 'avoid' 
+                    }}
+                  >
+                    <span 
+                      style={{ 
+                        position: 'absolute',
+                        left: 0,
+                        top: '0.375rem',
+                        width: '0.25rem',
+                        height: '0.25rem',
+                        borderRadius: '50%',
+                        backgroundColor: sidebarTextColor,
+                        opacity: 0.6,
+                      }} 
+                    />
+                    <span className="font-medium">{cert.name}</span>
+                    {(cert.issuer || cert.date) && (
+                      <span className="opacity-70 ml-1">
+                        {cert.issuer && `— ${cert.issuer}`}{cert.issuer && cert.date ? ', ' : ''}{cert.date || ''}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Hobbies */}
+          {resume.hobbies && resume.hobbies.filter(h => h.name && h.name.trim() !== '').length > 0 && (
+            <section data-section="hobbies" style={{ display: 'block', marginBottom: '1.75rem' }}>
+              <h2 
+                className="font-bold uppercase mb-2 text-sm"
+                style={{ 
+                  display: 'block',
+                  color: sidebarTextColor,
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
+                }}
+              >
+                Interests
+              </h2>
+              <p 
+                className="text-xs"
+                style={{ color: sidebarTextColor }}
+              >
+                {resume.hobbies.filter(h => h.name && h.name.trim() !== '').map((h) => h.name).join(", ")}
+              </p>
+            </section>
           )}
         </div>
-        {""} {/* Right Column - Summary & Experience */}
-        <div className="col-span-3 p-6 space-y-6">
-          {" "}
-          {""}{" "}
-          <TemplateSectionRenderer
-            resume={resume}
-            renderSection={renderSection}
-          />
+
+        {/* Right Column - Experience, Projects */}
+        <div 
+          style={{ 
+            padding: '1.5rem 1.5rem 1.5rem 1rem',
+            backgroundColor: 'white',
+          }}
+        >
+          {/* Experience */}
+          {resume.experiences && resume.experiences.length > 0 && (
+            <section data-section="experience" style={{ display: 'block', marginBottom: '1.25rem' }}>
+              <h2 
+                className="font-bold uppercase mb-3 text-sm text-gray-900"
+                style={{ 
+                  display: 'block',
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
+                }}
+              >
+                Experience
+              </h2>
+              <div style={{ display: 'block' }}>
+                {resume.experiences.map((exp) => (
+                  <div 
+                    key={exp.id} 
+                    className="experience-item"
+                    style={{ 
+                      display: 'block',
+                      marginBottom: '1rem', 
+                    }}
+                  >
+                    <div 
+                      style={{ 
+                        display: 'block',
+                        position: 'relative',
+                        marginBottom: '0.25rem',
+                        pageBreakAfter: 'avoid', 
+                        breakAfter: 'avoid' 
+                      }}
+                    >
+                      <div style={{ display: 'block' }}>
+                        <h3 className="font-bold text-gray-900 text-sm">
+                          {exp.position}
+                        </h3>
+                        <p className="text-gray-600 text-xs">{exp.company}</p>
+                      </div>
+                      <span 
+                        className="text-gray-500 text-xs"
+                        style={{ 
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {exp.startDate} – {exp.current ? "Present" : exp.endDate}
+                      </span>
+                    </div>
+                    {exp.description && (
+                      <div className="mt-2 text-gray-700 text-xs" style={{ display: 'block' }}>
+                        {renderDescription(exp.description)}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Projects */}
+          {resume.projects && resume.projects.length > 0 && (
+            <section data-section="projects" style={{ display: 'block', marginBottom: '1.25rem' }}>
+              <h2 
+                className="font-bold uppercase mb-3 text-sm text-gray-900"
+                style={{ 
+                  display: 'block',
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
+                }}
+              >
+                Projects
+              </h2>
+              <div style={{ display: 'block' }}>
+                {resume.projects.map((proj) => (
+                  <div 
+                    key={proj.id} 
+                    className="project-item"
+                    style={{ 
+                      display: 'block',
+                      marginBottom: '0.75rem',
+                    }}
+                  >
+                    <h3 className="font-bold text-gray-900 text-sm">{proj.name}</h3>
+                    <div className="text-gray-700 text-xs">
+                      {renderHTML(proj.description)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </div>
