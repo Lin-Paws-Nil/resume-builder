@@ -98,7 +98,7 @@ function SubscribePageContent() {
                 Back
               </Button>
               <span className="text-sm text-gray-400">|</span>
-              <h1 className="text-xl font-bold text-blue-600">resumebuilder.io</h1>
+              <h1 className="text-xl font-bold text-blue-600">createresume.co</h1>
             </div>
             <div className="text-sm text-gray-600">
               Welcome, {user?.username || user?.email?.split('@')[0]}

@@ -176,7 +176,7 @@ export default function SignupPage() {
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-3 rounded-xl shadow-lg">
               <FileText className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white">resumebuilder.io</h1>
+            <h1 className="text-3xl font-bold text-white">createresume.co</h1>
           </div>
           <h2 className="text-4xl font-bold text-white mb-2">Create Account</h2>
           <p className="text-gray-300">Start building your professional resume today</p>

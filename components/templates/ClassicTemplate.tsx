@@ -35,21 +35,16 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
               <div key={exp.id} className="mb-4">
                 <div className="flex justify-between">
                   <div>
-                    <h3 className="font-bold">{exp.position} </h3>
-                    <p className="italic">{exp.company} </p>
+                    <h3 className="font-semibold text-sm">{exp.position}</h3>
+                    <p className="text-gray-600 text-xs italic">{exp.company}</p>
                   </div>
-                  <span className="">
-                    {" "}
-                    {""} {exp.startDate} -{""}{" "}
-                    {exp.current ? "Present" : exp.endDate}
-                    {""}{" "}
+                  <span className="text-gray-600 text-xs">
+                    {exp.startDate} – {exp.current ? "Present" : exp.endDate}
                   </span>
                 </div>
-                {""}{" "}
                 {exp.description && (
                   <div className="mt-2 text-gray-700 text-xs">
-                    {" "}
-                    {""} {renderDescription(exp.description)}
+                    {renderDescription(exp.description)}
                   </div>
                 )}
               </div>
@@ -67,7 +62,7 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
             {""}{" "}
             {data.map((edu: any) => (
               <div key={edu.id} className="mb-2">
-                <h3 className="font-bold">
+                <h3 className="font-semibold text-sm">
                   {" "}
                   {edu.degree 
                     ? (edu.field ? `${edu.degree} in ${edu.field}` : edu.degree)
@@ -75,7 +70,7 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
                   }
                   {""}{" "}
                 </h3>
-                <p>
+                <p className="text-gray-600 text-xs">
                   {" "}
                   {edu.institution || ''} | {edu.startDate} - {edu.endDate}
                   {""}{" "}
@@ -92,15 +87,12 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
               {displayName}
               {""}{" "}
             </h2>
-            {""}{" "}
             {data.map((skill: any) => (
-              <div key={skill.id} className="mb-2" style={{ fontSize: "12px" }}>
-                {" "}
-                {""}{" "}
-                {skill.category ? (
-                  <span className="font-semibold">{skill.category}: </span>
-                ) : null}
-                {""} {skill.category ? "" : ""} {skill.items.join(",")}
+              <div key={skill.id} className="mb-2">
+                {skill.category && (
+                  <span className="font-semibold text-sm text-gray-900">{skill.category}: </span>
+                )}
+                <span className="text-gray-600 text-xs">{skill.items.join(', ')}</span>
               </div>
             ))}
           </section>
@@ -113,12 +105,10 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
               {displayName}
               {""}{" "}
             </h2>
-            {""}{" "}
             {data.map((proj: any) => (
               <div key={proj.id} className="mb-3">
-                <h3 className="font-bold">{proj.name} </h3>
+                <h3 className="font-semibold text-sm">{proj.name}</h3>
                 <div className="text-gray-700 text-xs">
-                  {" "}
                   {renderHTML(proj.description)}
                 </div>
               </div>
@@ -136,8 +126,12 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
             {""}{" "}
             {data.map((cert: any) => (
               <div key={cert.id} className="mb-1">
-                <span className="font-semibold">{cert.name} </span> -{""}{" "}
-                {cert.issuer} ({cert.date})
+                <span className="font-medium text-xs">{cert.name}</span>
+                {(cert.issuer || cert.date) && (
+                  <span className="text-gray-600 text-xs ml-2">
+                    {cert.issuer && `— ${cert.issuer}`}{cert.issuer && cert.date ? ' ' : ''}{cert.date && `(${cert.date})`}
+                  </span>
+                )}
               </div>
             ))}
           </section>
@@ -150,7 +144,7 @@ export function ClassicTemplate({ resume }: ClassicTemplateProps) {
               {displayName}
               {""}{" "}
             </h2>
-            <p>{data.map((h: any) => h.name).join(",")} </p>
+            <p className="text-gray-700 text-xs">{data.map((h: any) => h.name).join(", ")}</p>
           </section>
         );
       default:

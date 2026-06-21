@@ -1,4 +1,4 @@
-# 🚀 LUX Resume Builder - Futuristic UI Transformation
+# 🚀 createresume.co - Futuristic UI Transformation
 
 ## ✨ What's New
 
@@ -119,13 +119,13 @@ All pages are fully responsive:
 ## 🎭 Brand Evolution
 
 ### Old Brand
-- **Name**: resumebuilder.io
+- **Name**: createresume.co
 - **Theme**: Light blue and white
 - **Style**: Clean and simple
 - **Vibe**: Professional but generic
 
 ### New Brand
-- **Name**: LUX
+- **Name**: createresume.co
 - **Theme**: Dark with cyan/purple/pink gradients
 - **Style**: Futuristic and premium
 - **Vibe**: Cutting-edge AI-powered platform

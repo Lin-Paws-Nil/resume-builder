@@ -76,7 +76,7 @@ NOTES:
 ```
 ╔════════════════════════════════════════════════════════════════╗
 ║  Header (sticky)                                               ║
-║  [← Back] | resumebuilder.io          Welcome, Username       ║
+║  [← Back] | createresume.co          Welcome, Username       ║
 ╚════════════════════════════════════════════════════════════════╝
 
                     [✨ Unlock Premium Features]
@@ -149,7 +149,7 @@ FAQ Section:
 ```
 ╔════════════════════════════════════════════════════════════════╗
 ║  Header (sticky)                                               ║
-║  [← Back to Plans] | resumebuilder.io    Welcome, Username    ║
+║  [← Back to Plans] | createresume.co    Welcome, Username    ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ┌────────────────────────────────┬────────────────────────────────┐

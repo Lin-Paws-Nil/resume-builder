@@ -21,7 +21,6 @@ export function Dashboard() {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('resume');
   const [resumes, setResumes] = useState<SavedResume[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBucket, setSelectedBucket] = useState<string>('all');
   const router = useRouter();
 
   useEffect(() => {
@@ -59,23 +58,11 @@ export function Dashboard() {
     }
   };
 
-  const handleUpdateBucket = (id: string, bucket: string) => {
-    const updated = resumes.map((r) => (r.id === id ? { ...r, bucket } : r));
-    if (typeof window !== 'undefined') {
-      const username = sessionStorage.getItem('username') || 'SwapnilD';
-      localStorage.setItem(`resumes_${username}`, JSON.stringify(updated));
-    }
-    setResumes(updated);
-  };
-
-  const buckets = ['all', 'Google', 'Amazon', 'Microsoft', 'Accepted', 'Pending', 'Draft'];
   const filteredResumes = resumes.filter((resume) => {
     const matchesSearch =
       resume.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resume.personalInfo?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resume.bucket?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBucket = selectedBucket === 'all' || resume.bucket === selectedBucket;
-    return matchesSearch && matchesBucket;
+      resume.personalInfo?.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   });
 
   return (
@@ -124,17 +111,6 @@ export function Dashboard() {
                   className="pl-10 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-indigo-500"
                 />
               </div>
-              <select
-                value={selectedBucket}
-                onChange={(e) => setSelectedBucket(e.target.value)}
-                className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:bg-gray-100 transition-colors"
-              >
-                {buckets.map((bucket) => (
-                  <option key={bucket} value={bucket} className="bg-white text-gray-900">
-                    {bucket === 'all' ? 'All Buckets' : bucket}
-                  </option>
-                ))}
-              </select>
             </div>
             <Button
               onClick={() => router.push('/builder')}
@@ -163,8 +139,6 @@ export function Dashboard() {
               resumes={filteredResumes}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onUpdateBucket={handleUpdateBucket}
-              buckets={buckets}
             />
           )}
         </div>

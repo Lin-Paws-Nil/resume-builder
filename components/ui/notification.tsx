@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, X, AlertCircle } from 'lucide-react';
-import { Button } from './button';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface NotificationProps {
   message: string;
@@ -12,7 +11,7 @@ interface NotificationProps {
   type?: 'success' | 'error';
 }
 
-export function Notification({ message, onClose, duration = 5000, type = 'success' }: NotificationProps) {
+export function Notification({ message, onClose, duration = 3000, type = 'success' }: NotificationProps) {
   const [isVisible, setIsVisible] = useState(true);
   const isError = type === 'error';
 
@@ -23,47 +22,37 @@ export function Notification({ message, onClose, duration = 5000, type = 'succes
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration, onClose]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duration]);
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: -50, scale: 0.9 }}
+          initial={{ opacity: 0, y: -30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999]"
+          exit={{ opacity: 0, y: -15, scale: 0.95 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed top-5 left-1/2 transform -translate-x-1/2 z-[9999]"
         >
           <div className={`
-            glass-strong border-2 ${isError ? 'border-red-500/50 bg-red-500/10' : 'border-cyan-500/50 bg-cyan-500/10'}
-            px-6 py-4 rounded-2xl shadow-2xl
-            flex items-center gap-3 min-w-[400px] max-w-[600px]
-            ${isError ? 'shadow-red-500/20' : 'shadow-cyan-500/20'}
+            border rounded-xl shadow-lg px-5 py-3
+            flex items-center gap-3
+            ${isError 
+              ? 'bg-red-50 border-red-200 text-red-800' 
+              : 'bg-green-50 border-green-200 text-green-800'}
           `}>
             {isError ? (
-              <AlertCircle className="h-6 w-6 flex-shrink-0 text-red-400" />
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
             ) : (
-              <CheckCircle2 className="h-6 w-6 flex-shrink-0 text-cyan-400" />
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-500" />
             )}
-            <p className={`flex-1 font-semibold text-base ${isError ? 'text-red-100' : 'text-cyan-100'}`}>
+            <p className="font-semibold text-sm">
               {message}
             </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setIsVisible(false);
-                setTimeout(onClose, 300);
-              }}
-              className={`text-white ${isError ? 'hover:bg-red-500/20' : 'hover:bg-cyan-500/20'} h-8 w-8 p-0 rounded-lg`}
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
-

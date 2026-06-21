@@ -92,7 +92,7 @@ export function ModernTemplate({ resume }: ModernTemplateProps) {
                   className="border-l-2 pl-4"
                   style={{ borderColor }}
                 >
-                  <h3 className="font-semibold">
+                  <h3 className="font-semibold text-xs">
                     {edu.degree 
                       ? (edu.field ? `${edu.degree} in ${edu.field}` : edu.degree)
                       : (edu.field || 'Education')
@@ -123,11 +123,9 @@ export function ModernTemplate({ resume }: ModernTemplateProps) {
               {" "}
               {""}{" "}
               {data.map((skill: any) => (
-                <div key={skill.id}>
-                  {" "}
-                  {""}{" "}
+                <div key={skill.id} className="border-l-2 pl-4" style={{ borderColor }}>
                   {skill.category && (
-                    <h3 className="font-medium text-gray-800">
+                    <h3 className="font-medium text-gray-800 text-xs">
                       {" "}
                       {skill.category}:{""}{" "}
                     </h3>
@@ -186,12 +184,18 @@ export function ModernTemplate({ resume }: ModernTemplateProps) {
               {displayName} 
             </h2>
             <div className="space-y-2">
-              {" "}
-              {""}{" "}
               {data.map((cert: any) => (
-                <div key={cert.id}>
-                  <span className="font-medium">{cert.name} </span> -{""}{" "}
-                  {cert.issuer} ({cert.date})
+                <div 
+                  key={cert.id} 
+                  className="border-l-2 pl-4"
+                  style={{ borderColor }}
+                >
+                  <h3 className="font-semibold text-xs">{cert.name}</h3>
+                  {(cert.issuer || cert.date) && (
+                    <p className="text-gray-600 text-xs">
+                      {cert.issuer}{cert.issuer && cert.date ? ' • ' : ''}{cert.date}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -212,7 +216,7 @@ export function ModernTemplate({ resume }: ModernTemplateProps) {
               {data.map((hobby: any) => (
                 <span
                   key={hobby.id}
-                  className="px-3 py-1 rounded-full"
+                  className="px-2.5 py-1 rounded-full text-xs"
                   style={{ 
                     backgroundColor: accentColor === 'transparent' 
                       ? '#DBEAFE' 

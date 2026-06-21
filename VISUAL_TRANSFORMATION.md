@@ -169,7 +169,7 @@
 - Success confirmations with motion
 
 ### Brand Identity
-- Changed name to "LUX" for premium feel
+- Changed name to "createresume.co"
 - Gradient logo with rotation animation
 - Consistent futuristic theme
 - Modern, AI-focused messaging
@@ -198,7 +198,7 @@
 - 🎨 Typography (Space Grotesk + Inter)
 - 🎨 Animations (added Framer Motion)
 - 🎨 Component styling (glassmorphism)
-- 🎨 Brand name (LUX)
+- 🎨 Brand name (createresume.co)
 
 ## Result
 

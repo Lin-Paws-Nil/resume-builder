@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
     const body = await request.json();
-    const { resumeData, title, templateId, bucketName } = body;
+    const { resumeData, title, templateId } = body;
 
     if (!resumeData) {
       return NextResponse.json({ error: 'Resume data is required' }, { status: 400 });
@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
         title: title || 'My Resume',
         resume_data: resumeData,
         template_id: templateId || 'aurora',
-        bucket_name: bucketName || null,
         saved_at: new Date().toISOString(),
       })
       .select()
@@ -70,7 +69,7 @@ export async function PUT(request: NextRequest) {
     const supabase = await createClient();
 
     const body = await request.json();
-    const { resumeId, resumeData, title, templateId, bucketName } = body;
+    const { resumeId, resumeData, title, templateId } = body;
 
     if (!resumeId || !resumeData) {
       return NextResponse.json({ error: 'Resume ID and data are required' }, { status: 400 });
@@ -82,7 +81,6 @@ export async function PUT(request: NextRequest) {
         title: title || 'My Resume',
         resume_data: resumeData,
         template_id: templateId || 'aurora',
-        bucket_name: bucketName || null,
         saved_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })

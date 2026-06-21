@@ -96,23 +96,20 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
         )}
       </section>
 
-      {/* Two Column Layout - Using table display for equal height columns */}
+      {/* Two Column Layout - Using CSS Grid */}
       <div 
         style={{ 
-          display: 'table',
+          display: 'grid',
+          gridTemplateColumns: '40% 60%',
           width: '100%',
-          tableLayout: 'fixed',
         }}
       >
         {/* Left Column - Education, Skills (with blue background extending full height) */}
         <div 
           style={{ 
-            display: 'table-cell',
-            width: '40%',
             padding: '1.5rem 1rem 1.5rem 1.5rem',
             backgroundColor: sidebarColor === 'transparent' ? '#EFF6FF' : sidebarColor,
             color: sidebarTextColor,
-            verticalAlign: 'top',
           }}
         >
           {/* Education */}
@@ -241,7 +238,7 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
                     <span className="font-medium">{cert.name}</span>
                     {(cert.issuer || cert.date) && (
                       <span className="opacity-70 ml-1">
-                        — {cert.issuer}{cert.issuer && cert.date ? ', ' : ''}{cert.date || ''}
+                        {cert.issuer && `— ${cert.issuer}`}{cert.issuer && cert.date ? ', ' : ''}{cert.date || ''}
                       </span>
                     )}
                   </li>
@@ -251,7 +248,7 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
           )}
 
           {/* Hobbies */}
-          {resume.hobbies && resume.hobbies.length > 0 && (
+          {resume.hobbies && resume.hobbies.filter(h => h.name && h.name.trim() !== '').length > 0 && (
             <section data-section="hobbies" style={{ display: 'block', marginBottom: '1.75rem' }}>
               <h2 
                 className="font-bold uppercase mb-2 text-sm"
@@ -268,7 +265,7 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
                 className="text-xs"
                 style={{ color: sidebarTextColor }}
               >
-                {resume.hobbies.map((h) => h.name).join(", ")}
+                {resume.hobbies.filter(h => h.name && h.name.trim() !== '').map((h) => h.name).join(", ")}
               </p>
             </section>
           )}
@@ -277,11 +274,8 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
         {/* Right Column - Experience, Projects */}
         <div 
           style={{ 
-            display: 'table-cell',
-            width: '60%',
             padding: '1.5rem 1.5rem 1.5rem 1rem',
             backgroundColor: 'white',
-            verticalAlign: 'top',
           }}
         >
           {/* Experience */}
@@ -304,9 +298,7 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
                     className="experience-item"
                     style={{ 
                       display: 'block',
-                      marginBottom: '1rem',
-                      pageBreakInside: 'avoid', 
-                      breakInside: 'avoid' 
+                      marginBottom: '1rem', 
                     }}
                   >
                     <div 
@@ -368,8 +360,6 @@ export function StellarTemplate({ resume }: StellarTemplateProps) {
                     style={{ 
                       display: 'block',
                       marginBottom: '0.75rem',
-                      pageBreakInside: 'avoid', 
-                      breakInside: 'avoid' 
                     }}
                   >
                     <h3 className="font-bold text-gray-900 text-sm">{proj.name}</h3>

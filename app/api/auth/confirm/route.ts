@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     // Verify the token and confirm the email using token hash method
     const { data, error } = await supabase.auth.verifyOtp({
       token_hash: token,
-      type: type as 'signup' | 'email',
+      type: type as 'signup' | 'email' | 'recovery',
     });
 
     if (error) {
@@ -34,7 +34,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (data.user) {
-      // Email confirmed successfully
+      if (type === 'recovery') {
+        return NextResponse.redirect(
+          new URL('/reset-password', request.url)
+        );
+      }
       return NextResponse.redirect(
         new URL(`${redirectTo}?message=Email confirmed successfully`, request.url)
       );

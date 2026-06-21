@@ -130,7 +130,7 @@ function PaymentPageContent() {
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: 'Resume Builder',
+        name: 'createresume.co',
         description: `${selectedPlan.name} Plan - ${selectedPlan.duration}`,
         image: `${baseUrl}/logo.png`, // Your logo (optional)
         order_id: data.orderId,
@@ -268,7 +268,7 @@ function PaymentPageContent() {
                 Back to Plans
               </Button>
               <span className="text-sm text-gray-400">|</span>
-              <h1 className="text-xl font-bold text-blue-600">resumebuilder.io</h1>
+              <h1 className="text-xl font-bold text-blue-600">createresume.co</h1>
             </div>
             <div className="text-sm text-gray-600">
               Welcome, {user?.username || user?.email?.split('@')[0]}

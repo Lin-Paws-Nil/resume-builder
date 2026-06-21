@@ -32,7 +32,7 @@ export function AetherTemplate({ resume }: AetherTemplateProps) {
                 <div key={exp.id}>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <h3 className="font-bold text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-sm">
                         {" "}
                         {exp.position}{" "}
                       </h3>
@@ -66,7 +66,7 @@ export function AetherTemplate({ resume }: AetherTemplateProps) {
               {""}{" "}
               {data.map((edu: any) => (
                 <div key={edu.id}>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 text-sm">
                     {" "}
                     {edu.degree 
                       ? (edu.field ? `${edu.degree} in ${edu.field}` : edu.degree)
@@ -144,10 +144,11 @@ export function AetherTemplate({ resume }: AetherTemplateProps) {
                     {" "}
                     {cert.name}{" "}
                   </span>
-                  <span className="text-gray-700 ml-2 text-xs">
-                    {" "}
-                    - {cert.issuer} ({cert.date}){" "}
-                  </span>
+                  {(cert.issuer || cert.date) && (
+                    <span className="text-gray-700 ml-2 text-xs">
+                      {cert.issuer && `– ${cert.issuer}`}{cert.issuer && cert.date ? ' ' : ''}{cert.date && `(${cert.date})`}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -169,45 +170,27 @@ export function AetherTemplate({ resume }: AetherTemplateProps) {
   };
   return (
     <div className="font-sans bg-white">
-      {" "}
-      {""} {/* Header Banner */}
-      <div className="bg-blue-600 text-white p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="font-bold mb-1">
-              {" "}
-              {""} {resume.personalInfo.fullName || "Your Name"}
-              {""}{" "}
-            </h1>
-            <div className="flex gap-4">
-              {" "}
-              {""}{" "}
-              {resume.personalInfo.email && (
-                <span>{resume.personalInfo.email}</span>
-              )}
-              {""}{" "}
-              {resume.personalInfo.phone && (
-                <span>{resume.personalInfo.phone}</span>
-              )}
-              {""}{" "}
-              {resume.personalInfo.location && (
-                <span>{resume.personalInfo.location}</span>
-              )}
-            </div>
-          </div>
+      {/* Header Banner */}
+      <div className="bg-blue-600 text-white p-6 pb-4">
+        <h1 className="text-xl font-bold mb-1">
+          {resume.personalInfo.fullName || "Your Name"}
+        </h1>
+        <p className="text-sm text-blue-100 mb-3">
+          {resume.experiences?.[0]?.position || "Your Title"}
+        </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-blue-100">
+          {resume.personalInfo.email && (
+            <span>{resume.personalInfo.email}</span>
+          )}
+          {resume.personalInfo.phone && (
+            <span>{resume.personalInfo.phone}</span>
+          )}
+          {resume.personalInfo.location && (
+            <span>{resume.personalInfo.location}</span>
+          )}
         </div>
       </div>
-      {""} {/* Title */}
-      <div className="text-center py-3 border-b-2 border-blue-600">
-        <p className="font-semibold text-gray-900 text-xs">
-          {" "}
-          {""} {resume.experiences?.[0]?.position || "Your Title"}
-          {""}{" "}
-        </p>
-      </div>
       <div className="p-6 space-y-6">
-        {" "}
-        {""}{" "}
         <TemplateSectionRenderer
           resume={resume}
           renderSection={renderSection}

@@ -34,7 +34,7 @@ const templates = [
     id: 'stellar',
     name: 'Stellar',
     image: '/resume-examples/stellar/stellar.png',
-    categories: ['Professional', 'ATS', 'Two columns'] as TemplateCategory[],
+    categories: ['Professional', 'Two columns'] as TemplateCategory[],
     color: 'from-blue-400 to-blue-600',
   },
   {
