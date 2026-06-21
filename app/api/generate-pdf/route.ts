@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
   try {
     const resumeData: ResumeData = await request.json();
 
-    let browser;
+    let browser: any;
     try {
       browser = await getBrowser();
     } catch (error: any) {
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const page = await browser.newPage();
+      const page: any = await browser.newPage();
 
       await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
 
