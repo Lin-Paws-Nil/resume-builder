@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ResumeUpload } from '@/components/resume/ResumeUpload';
-import { LinkedInImport } from '@/components/resume/LinkedInImport';
 import { SectionEditor } from '@/components/resume/SectionEditor';
 import { TemplateBar } from '@/components/resume/TemplateBar';
 import { ResumePreview } from '@/components/resume/ResumePreview';
@@ -135,6 +134,17 @@ function BuilderPageContent() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    console.log('[Builder Debug]', {
+      user: user?.email || null,
+      isGuest,
+      authLoading,
+      subLoading,
+      premium: subscription?.canDownload || false,
+      isMounted,
+    });
+  }, [user, isGuest, authLoading, subLoading, subscription, isMounted]);
 
   // Handle template selection from URL
   useEffect(() => {
@@ -434,16 +444,6 @@ function BuilderPageContent() {
 
   return (
     <div className="h-screen flex flex-col bg-white">
-      {/* Debug Panel - Always visible */}
-      <div className="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-xs font-mono z-50 relative">
-        <strong>DEBUG:</strong> User: {user ? `✅ ${user.email}` : '❌ null'} | 
-        IsGuest: {isGuest ? '❌ TRUE' : '✅ FALSE'} | 
-        AuthLoading: {authLoading ? 'YES' : 'NO'} | 
-        SubLoading: {subLoading ? 'YES' : 'NO'} |
-        Premium: {subscription?.canDownload ? '✅ YES' : '❌ NO'} |
-        Mounted: {isMounted ? 'YES' : 'NO'}
-      </div>
-      
       {/* Session Warning */}
       {user && !isGuest && sessionTimeRemaining > 0 && (
         <SessionWarning
@@ -657,7 +657,6 @@ function BuilderPageContent() {
         >
           <div className="p-4 border-b border-gray-200 space-y-0">
             <ResumeUpload />
-            <LinkedInImport />
           </div>
           
           <div className="px-4 py-4 bg-gradient-to-br from-blue-50 to-purple-50 border-b border-gray-200">
