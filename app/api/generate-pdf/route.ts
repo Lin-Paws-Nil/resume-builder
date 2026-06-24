@@ -317,7 +317,7 @@ function renderTemplateToHTML(resume: ResumeData): string {
         print-color-adjust: exact;
       }
 
-      /* Avoid breaking inside individual entries (experience cards, education items, etc.) */
+      /* Avoid breaking inside individual entries in space-y containers */
       .space-y-4 > div,
       .space-y-3 > div,
       .space-y-2 > div,
@@ -335,15 +335,28 @@ function renderTemplateToHTML(resume: ResumeData): string {
         break-inside: avoid;
       }
 
-      /* Avoid breaking inside bordered entries (Hyperion experience cards) */
+      /* Avoid breaking inside bordered entries (Hyperion, Modern, Creative) */
       [class*="border-l"] {
         break-inside: avoid;
       }
 
-      /* Avoid breaking inside mb-* spaced items (Classic, other templates) */
-      section > .mb-4,
-      section > .mb-3,
-      section > .mb-2 {
+      /* Avoid breaking inside card-style entries (Creative education/certs) */
+      [class*="rounded"] {
+        break-inside: avoid;
+      }
+
+      /* Stellar template named entries */
+      .experience-item,
+      .education-item,
+      .project-item,
+      .certification-item {
+        break-inside: avoid;
+      }
+
+      /* Entries spaced with mb-* inside sections */
+      section .mb-4,
+      section .mb-3,
+      section .mb-2 {
         break-inside: avoid;
       }
     }
