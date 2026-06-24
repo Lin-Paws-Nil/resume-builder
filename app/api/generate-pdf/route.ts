@@ -126,96 +126,19 @@ export async function POST(request: NextRequest) {
       await page.evaluate(() => document.fonts.ready);
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Apply same page break logic as the preview
-      await page.evaluate(() => {
-        const container = document.getElementById('resume-content');
-        if (!container) return;
-
-        const MM_TO_PX = 3.779527559;
-        const CONTENT_HEIGHT_PX = (297 - 26) * MM_TO_PX;
-
-        const totalHeight = container.scrollHeight;
-        if (totalHeight <= CONTENT_HEIGHT_PX) return;
-
-        const lineSelectors = [
-          'li', 'p', 'h2', 'h3',
-          '.whitespace-pre-line > div',
-          '.rich-text-content > p',
-          '.rich-text-content > ul > li',
-          '.rich-text-content > ol > li',
-          '.list-disc > li',
-        ].join(', ');
-
-        const items = container.querySelectorAll(lineSelectors);
-        const containerRect = container.getBoundingClientRect();
-
-        const itemBounds: any[] = [];
-        items.forEach((el) => {
-          const rect = el.getBoundingClientRect();
-          if (rect.height > 0 && rect.height < CONTENT_HEIGHT_PX * 0.5) {
-            itemBounds.push({ top: rect.top - containerRect.top, bottom: rect.bottom - containerRect.top, el });
-          }
-        });
-
-        const compactItems = container.querySelectorAll('.space-y-3 > div, .space-y-2 > div');
-        compactItems.forEach((el) => {
-          const rect = el.getBoundingClientRect();
-          if (rect.height > 0 && rect.height < 80) {
-            itemBounds.push({ top: rect.top - containerRect.top, bottom: rect.bottom - containerRect.top, el });
-          }
-        });
-
-        itemBounds.sort((a: any, b: any) => a.top - b.top);
-
-        let currentStartY = 0;
-        let iterations = 0;
-
-        while (currentStartY < totalHeight && iterations < 20) {
-          const pageEndY = currentStartY + CONTENT_HEIGHT_PX;
-          if (pageEndY >= totalHeight) break;
-
-          let breakY = pageEndY;
-          let breakElement = null;
-
-          for (let i = 0; i < itemBounds.length; i++) {
-            const item = itemBounds[i];
-            if (item.bottom <= currentStartY) continue;
-            if (item.top > currentStartY && item.top < pageEndY && item.bottom > pageEndY) {
-              breakY = item.top;
-              breakElement = item.el;
-              break;
-            }
-          }
-
-          if (breakY - currentStartY < CONTENT_HEIGHT_PX * 0.2) {
-            currentStartY = currentStartY + CONTENT_HEIGHT_PX;
-            iterations++;
-            continue;
-          }
-
-          if (breakElement) {
-            const marker = document.createElement('div');
-            marker.style.cssText = 'height:0;margin:0;padding:0;page-break-before:always;break-before:page;';
-            breakElement.parentNode?.insertBefore(marker, breakElement);
-          }
-
-          currentStartY = breakY;
-          iterations++;
-        }
-      });
-
+      // Switch to print media BEFORE any layout measurement
       await page.emulateMediaType('print');
 
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: {
-          top: '10mm',
-          right: '20mm',
-          bottom: '10mm',
-          left: '20mm',
+          top: '0',
+          right: '0',
+          bottom: '0',
+          left: '0',
         },
-        preferCSSPageSize: false,
+        preferCSSPageSize: true,
         displayHeaderFooter: false,
       });
 
@@ -272,7 +195,7 @@ function renderTemplateToHTML(resume: ResumeData): string {
   <style>
     @page {
       size: A4;
-      margin: 0;
+      margin: 10mm 20mm 10mm 20mm;
     }
 
     * {
@@ -296,9 +219,7 @@ function renderTemplateToHTML(resume: ResumeData): string {
     }
 
     #resume-content {
-      width: 100%;
-      max-width: 170mm;
-      margin: 0 auto;
+      margin: 0;
       padding: 0;
       box-sizing: border-box;
       overflow-wrap: break-word;
@@ -394,6 +315,24 @@ function renderTemplateToHTML(resume: ResumeData): string {
       body {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+      }
+
+      section {
+        break-inside: avoid;
+      }
+
+      .space-y-4 > div,
+      .space-y-3 > div,
+      .space-y-2 > div {
+        break-inside: avoid;
+      }
+
+      h2, h3 {
+        break-after: avoid;
+      }
+
+      li {
+        break-inside: avoid;
       }
     }
   </style>
