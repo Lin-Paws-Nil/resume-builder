@@ -317,21 +317,33 @@ function renderTemplateToHTML(resume: ResumeData): string {
         print-color-adjust: exact;
       }
 
-      section {
-        break-inside: avoid;
-      }
-
+      /* Avoid breaking inside individual entries (experience cards, education items, etc.) */
       .space-y-4 > div,
       .space-y-3 > div,
-      .space-y-2 > div {
+      .space-y-2 > div,
+      .space-y-6 > div {
         break-inside: avoid;
       }
 
+      /* Keep headings with their following content */
       h2, h3 {
         break-after: avoid;
       }
 
+      /* Avoid breaking list items */
       li {
+        break-inside: avoid;
+      }
+
+      /* Avoid breaking inside bordered entries (Hyperion experience cards) */
+      [class*="border-l"] {
+        break-inside: avoid;
+      }
+
+      /* Avoid breaking inside mb-* spaced items (Classic, other templates) */
+      section > .mb-4,
+      section > .mb-3,
+      section > .mb-2 {
         break-inside: avoid;
       }
     }
