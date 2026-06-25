@@ -146,7 +146,7 @@ export function AuroraTemplate({ resume }: AuroraTemplateProps) {
             <h2 className="text-lg font-bold uppercase mb-3 text-gray-900">
               {displayName}
             </h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-center">
               {data.map((hobby: any) => (
                 <span
                   key={hobby.id}

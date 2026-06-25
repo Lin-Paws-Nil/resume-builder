@@ -281,6 +281,15 @@ function renderTemplateToHTML(resume: ResumeData): string {
     .gap-0 {
       gap: 0px;
     }
+    .gap-1 {
+      gap: 0.25rem;
+    }
+    .gap-2 {
+      gap: 0.5rem;
+    }
+    .gap-4 {
+      gap: 1rem;
+    }
 
     .flex {
       display: flex;
@@ -290,6 +299,9 @@ function renderTemplateToHTML(resume: ResumeData): string {
     }
     .justify-between {
       justify-content: space-between;
+    }
+    .justify-center {
+      justify-content: center;
     }
     .items-start {
       align-items: flex-start;

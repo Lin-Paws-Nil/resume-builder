@@ -66,7 +66,7 @@ export function CreativeTemplate({ resume }: CreativeTemplateProps) {
         return (
           <section className="mb-6">
             <h2 className="font-bold text-orange-600 mb-4">Skills</h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-center">
               {data.flatMap((skill: any) =>
                 skill.items.map((item: string, idx: number) => (
                   <span
