@@ -130,3 +130,52 @@ export function isSubscriptionActive(subscription: UserSubscription): boolean {
   return new Date(subscription.endDate) > new Date();
 }
 
+export type RegionCode = 'IN' | 'US' | 'GB' | 'EU' | 'AE' | 'AU' | 'CA' | 'SG';
+
+export interface RegionalPrice {
+  symbol: string;
+  code: string;
+  weekly: number;
+  monthly: number;
+  annual: number;
+}
+
+export const REGIONAL_PRICING: Record<RegionCode | 'default', RegionalPrice> = {
+  IN: { symbol: '₹', code: 'INR', weekly: 150, monthly: 350, annual: 1500 },
+  US: { symbol: '$', code: 'USD', weekly: 5, monthly: 10, annual: 50 },
+  GB: { symbol: '£', code: 'GBP', weekly: 5, monthly: 10, annual: 40 },
+  EU: { symbol: '€', code: 'EUR', weekly: 5, monthly: 10, annual: 45 },
+  AE: { symbol: 'AED ', code: 'AED', weekly: 18, monthly: 45, annual: 180 },
+  AU: { symbol: 'A$', code: 'AUD', weekly: 8, monthly: 15, annual: 70 },
+  CA: { symbol: 'C$', code: 'CAD', weekly: 7, monthly: 13, annual: 65 },
+  SG: { symbol: 'S$', code: 'SGD', weekly: 7, monthly: 13, annual: 60 },
+  default: { symbol: '$', code: 'USD', weekly: 5, monthly: 10, annual: 50 },
+};
+
+export function getRegionFromCountryCode(countryCode: string): RegionCode | 'default' {
+  const code = countryCode.toUpperCase();
+  if (code === 'IN') return 'IN';
+  if (code === 'US') return 'US';
+  if (code === 'GB') return 'GB';
+  if (code === 'AU') return 'AU';
+  if (code === 'CA') return 'CA';
+  if (code === 'AE') return 'AE';
+  if (code === 'SG') return 'SG';
+  if (['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'IE', 'PT', 'FI', 'GR'].includes(code)) return 'EU';
+  if (['SA', 'QA', 'KW', 'BH', 'OM'].includes(code)) return 'AE';
+  if (code === 'NZ') return 'AU';
+  if (['MY', 'PH', 'TH', 'ID', 'VN'].includes(code)) return 'SG';
+  return 'default';
+}
+
+export function getRegionalPlanPrice(
+  plan: PlanType,
+  region: RegionCode | 'default'
+): string {
+  if (plan === 'free') return 'Free';
+  const pricing = REGIONAL_PRICING[region];
+  const amount = pricing[plan as 'weekly' | 'monthly' | 'annual'];
+  return `${pricing.symbol}${amount.toLocaleString()}`;
+}
+
+

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Crown, Zap, Star, Check, ArrowLeft, Sparkles, Upload, FileDown, Link2 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useSubscription } from '@/lib/hooks/use-subscription';
-import { PLANS, type PlanType } from '@/lib/types/subscription';
+import { PLANS, type PlanType, type RegionCode, getRegionFromCountryCode, getRegionalPlanPrice } from '@/lib/types/subscription';
 
 function SubscribePageContent() {
   const router = useRouter();
@@ -15,11 +15,25 @@ function SubscribePageContent() {
   const { subscription, loading: subLoading } = useSubscription(user?.id || null);
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [region, setRegion] = useState<RegionCode | 'default'>('default');
 
   const returnUrl = searchParams.get('return') || '/builder';
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const detectRegion = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        setRegion(getRegionFromCountryCode(data.country_code));
+      } catch {
+        setRegion('default');
+      }
+    };
+    detectRegion();
   }, []);
 
   useEffect(() => {
@@ -205,7 +219,7 @@ function SubscribePageContent() {
 
                   <div className="mb-6 pb-6 border-b">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
+                      <span className="text-5xl font-bold text-gray-900">{getRegionalPlanPrice(planId, region)}</span>
                     </div>
                     <p className="text-gray-600 text-sm mt-1">for {plan.duration}</p>
                   </div>
@@ -255,7 +269,7 @@ function SubscribePageContent() {
                 You've Selected the {PLANS[selectedPlan].name} Plan
               </h2>
               <p className="text-gray-600">
-                {PLANS[selectedPlan].price} for {PLANS[selectedPlan].duration}
+                {getRegionalPlanPrice(selectedPlan, region)} for {PLANS[selectedPlan].duration}
               </p>
             </div>
 

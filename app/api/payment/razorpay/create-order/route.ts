@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRazorpayOrder } from '@/lib/payments/razorpay';
-import { getPlanPrice, toSmallestUnit } from '@/lib/payments/config';
+import { getPlanPrice, toSmallestUnit, isSupportedCurrency } from '@/lib/payments/config';
 import { createClient } from '@/lib/supabase/server';
 import type { PlanType } from '@/lib/types/subscription';
 
@@ -56,9 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate currency
-    const validCurrencies = ['INR', 'USD', 'EUR', 'GBP'] as const;
-    type ValidCurrency = typeof validCurrencies[number];
-    const curr = (validCurrencies.includes(currency as any) ? currency : 'INR') as ValidCurrency;
+    const curr = isSupportedCurrency(currency) ? currency : 'INR';
 
     // Get plan price in requested currency
     const planPrice = getPlanPrice(planId as 'weekly' | 'monthly' | 'annual', curr);

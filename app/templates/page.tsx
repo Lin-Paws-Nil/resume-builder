@@ -478,8 +478,11 @@ export default function TemplatesPage() {
             </div>
             <h2 className="text-2xl font-bold text-white">createresume.co</h2>
           </div>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-sm mb-2">
             Build your professional resume in minutes
+          </p>
+          <p className="text-gray-500 text-sm">
+            Contact us: <a href="mailto:whitehillpvt@gmail.com" className="text-blue-400 hover:text-blue-300">whitehillpvt@gmail.com</a>
           </p>
         </div>
       </footer>

@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Globe, Lock, Check, AlertCircle, Loader2, Crown, Zap, Star, CreditCard, Smartphone } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useSubscription } from '@/lib/hooks/use-subscription';
-import { PLANS, type PlanType } from '@/lib/types/subscription';
-import { detectUserCurrency, getPlanPrice, type Currency, type PaidPlanType, PAYMENT_CONFIG } from '@/lib/payments/config';
+import { PLANS, type PlanType, getRegionFromCountryCode, REGIONAL_PRICING, type RegionCode } from '@/lib/types/subscription';
+import { getPlanPrice, toSmallestUnit, type PaidPlanType, PAYMENT_CONFIG } from '@/lib/payments/config';
 
 // Declare Razorpay on window
 declare global {
@@ -25,7 +25,8 @@ function PaymentPageContent() {
   const [isMounted, setIsMounted] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currency, setCurrency] = useState<Currency>('INR');
+  const [currency, setCurrency] = useState<string>('INR');
+  const [region, setRegion] = useState<RegionCode | 'default'>('default');
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   const planId = (searchParams.get('plan') || 'monthly') as PlanType;
@@ -35,9 +36,20 @@ function PaymentPageContent() {
   useEffect(() => {
     setIsMounted(true);
     
-    // Detect user currency
-    const detectedCurrency = detectUserCurrency();
-    setCurrency(detectedCurrency);
+    // Detect user region and currency via IP
+    const detectRegion = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        const detectedRegion = getRegionFromCountryCode(data.country_code);
+        setRegion(detectedRegion);
+        setCurrency(REGIONAL_PRICING[detectedRegion].code);
+      } catch {
+        setRegion('default');
+        setCurrency('USD');
+      }
+    };
+    detectRegion();
 
     // Load Razorpay script only if not already loaded
     if (!window.Razorpay) {
@@ -295,7 +307,7 @@ function PaymentPageContent() {
                 {PAYMENT_CONFIG.POPULAR_CURRENCIES.map((curr) => (
                   <button
                     key={curr}
-                    onClick={() => setCurrency(curr as Currency)}
+                    onClick={() => setCurrency(curr)}
                     disabled={processing}
                     className={`p-3 border-2 rounded-lg transition-all text-center ${
                       currency === curr
@@ -305,7 +317,7 @@ function PaymentPageContent() {
                   >
                     <div className="font-semibold text-sm">{curr}</div>
                     <div className="text-xs text-gray-600">
-                      {getPlanPrice(planId as PaidPlanType, curr as Currency).display}
+                      {getPlanPrice(planId as PaidPlanType, curr).display}
                     </div>
                   </button>
                 ))}

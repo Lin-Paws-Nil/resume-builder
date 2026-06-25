@@ -1,103 +1,97 @@
 // Razorpay Payment Configuration
-// Supports 130+ currencies and international payments
+// Razorpay supports 100+ currencies for international payments
+
+import { type RegionCode, REGIONAL_PRICING, getRegionFromCountryCode } from '@/lib/types/subscription';
 
 export const PAYMENT_CONFIG = {
-  // Gateway
   GATEWAY: 'razorpay' as const,
-  
-  // Currency support (Razorpay supports 130+ currencies)
   DEFAULT_CURRENCY: 'INR',
-  POPULAR_CURRENCIES: ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'AED'],
-  
-  // Exchange rates (update periodically or use API)
-  // All prices are in INR base, auto-converted by Razorpay
-  EXCHANGE_RATES: {
-    INR: 1,
-    USD: 0.012,   // 1 INR = 0.012 USD (approx)
-    EUR: 0.011,   // 1 INR = 0.011 EUR
-    GBP: 0.0095,  // 1 INR = 0.0095 GBP
-    AUD: 0.018,   // 1 INR = 0.018 AUD
-    CAD: 0.016,   // 1 INR = 0.016 CAD
-    SGD: 0.016,   // 1 INR = 0.016 SGD
-    AED: 0.044,   // 1 INR = 0.044 AED
-  },
-  
-  // Pricing in INR (base currency)
-  BASE_PRICES: {
-    weekly: 150,
-    monthly: 350,
-    annual: 3200,
-  },
-  
-  // Razorpay fees
-  RAZORPAY_FEES: {
-    domestic: 2.0,      // 2% for Indian payments (UPI, Cards, etc.)
-    international: 3.0, // 3% for international card payments
-  },
+  POPULAR_CURRENCIES: ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'AED'] as const,
+  SUPPORTED_CURRENCIES: ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'AED', 'MYR', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'NZD', 'ZAR', 'HKD', 'JPY', 'KRW', 'THB', 'PHP', 'IDR', 'BDT', 'LKR', 'NPR'] as const,
 } as const;
 
-export type Currency = keyof typeof PAYMENT_CONFIG.EXCHANGE_RATES;
+export type Currency = typeof PAYMENT_CONFIG.SUPPORTED_CURRENCIES[number];
 export type PaidPlanType = 'weekly' | 'monthly' | 'annual';
 
-// Convert price from INR to target currency
-export function convertPrice(
-  priceInINR: number,
-  targetCurrency: Currency
-): number {
-  if (targetCurrency === 'INR') return priceInINR;
-  
-  const rate = PAYMENT_CONFIG.EXCHANGE_RATES[targetCurrency];
-  return Math.round(priceInINR * rate * 100) / 100; // Round to 2 decimals
+// Regional pricing amounts (fixed whole numbers per region)
+const REGIONAL_AMOUNTS: Record<RegionCode | 'default', Record<PaidPlanType, number>> = {
+  IN: { weekly: 150, monthly: 350, annual: 1500 },
+  US: { weekly: 5, monthly: 10, annual: 50 },
+  GB: { weekly: 5, monthly: 10, annual: 40 },
+  EU: { weekly: 5, monthly: 10, annual: 45 },
+  AE: { weekly: 18, monthly: 45, annual: 180 },
+  AU: { weekly: 8, monthly: 15, annual: 70 },
+  CA: { weekly: 7, monthly: 13, annual: 65 },
+  SG: { weekly: 7, monthly: 13, annual: 60 },
+  default: { weekly: 5, monthly: 10, annual: 50 },
+};
+
+// Map currency code to region for pricing
+function getRegionForCurrency(currency: string): RegionCode | 'default' {
+  switch (currency) {
+    case 'INR': return 'IN';
+    case 'USD': return 'US';
+    case 'GBP': return 'GB';
+    case 'EUR': return 'EU';
+    case 'AED': return 'AE';
+    case 'AUD': return 'AU';
+    case 'CAD': return 'CA';
+    case 'SGD': return 'SG';
+    case 'MYR': return 'SG';
+    case 'SAR': return 'AE';
+    case 'QAR': return 'AE';
+    default: return 'default';
+  }
 }
 
-// Get price for a plan in specific currency
+// Get price for a plan in a specific currency
 export function getPlanPrice(
   plan: PaidPlanType,
-  currency: Currency
-): { amount: number; currency: Currency; display: string } {
-  const basePrice = PAYMENT_CONFIG.BASE_PRICES[plan];
-  const convertedPrice = convertPrice(basePrice, currency);
-  
+  currency: string
+): { amount: number; currency: string; display: string } {
+  const region = getRegionForCurrency(currency);
+  const amount = REGIONAL_AMOUNTS[region][plan];
+
   return {
-    amount: convertedPrice,
+    amount,
     currency,
-    display: formatPrice(convertedPrice, currency),
+    display: formatPrice(amount, currency),
   };
 }
 
 // Format price for display
-export function formatPrice(amount: number, currency: Currency): string {
-  // Handle zero-exponent currencies (JPY, KRW, etc.)
+export function formatPrice(amount: number, currency: string): string {
   const zeroExponentCurrencies = ['JPY', 'KRW', 'VND', 'CLP', 'TWD'];
-  const decimals = zeroExponentCurrencies.includes(currency) ? 0 : 
+  const decimals = zeroExponentCurrencies.includes(currency) ? 0 :
                    currency === 'INR' ? 0 : 2;
-  
+
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
-  
+
   return formatter.format(amount);
 }
 
-// Convert amount to smallest currency unit (paise, cents, etc.)
-export function toSmallestUnit(amount: number, currency: Currency): number {
-  // Zero-exponent currencies don't need multiplication
+// Convert amount to smallest currency unit (paise, cents, fils, etc.)
+export function toSmallestUnit(amount: number, currency: string): number {
   const zeroExponentCurrencies = ['JPY', 'KRW', 'VND', 'CLP', 'TWD'];
   if (zeroExponentCurrencies.includes(currency)) {
     return Math.round(amount);
   }
-  
-  // All other currencies use 2 decimal places (cents, paise, etc.)
+  // Bahraini Dinar, Kuwaiti Dinar, Omani Rial use 3 decimal places
+  const threeDecimalCurrencies = ['BHD', 'KWD', 'OMR'];
+  if (threeDecimalCurrencies.includes(currency)) {
+    return Math.round(amount * 1000);
+  }
   return Math.round(amount * 100);
 }
 
-// Detect user currency based on locale/location
-export function detectUserCurrency(countryCode?: string): Currency {
+// Detect user currency based on country code
+export function detectUserCurrency(countryCode?: string): string {
   if (!countryCode) {
-    // Try to detect from browser
     if (typeof window !== 'undefined') {
       const browserLang = navigator.language;
       if (browserLang.includes('IN')) return 'INR';
@@ -107,34 +101,14 @@ export function detectUserCurrency(countryCode?: string): Currency {
       if (browserLang.includes('CA')) return 'CAD';
       if (browserLang.includes('SG')) return 'SGD';
     }
-    return 'INR'; // Default to INR
+    return 'INR';
   }
-  
-  switch (countryCode.toUpperCase()) {
-    case 'IN':
-      return 'INR';
-    case 'US':
-      return 'USD';
-    case 'GB':
-      return 'GBP';
-    case 'AU':
-      return 'AUD';
-    case 'CA':
-      return 'CAD';
-    case 'SG':
-      return 'SGD';
-    case 'AE':
-      return 'AED';
-    default:
-      // EU countries
-      if (['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'IE'].includes(countryCode.toUpperCase())) {
-        return 'EUR';
-      }
-      return 'USD'; // Default to USD for other countries
-  }
+
+  const region = getRegionFromCountryCode(countryCode);
+  return REGIONAL_PRICING[region].code;
 }
 
 // Check if currency is supported by Razorpay
-export function isSupportedCurrency(currency: string): currency is Currency {
-  return currency in PAYMENT_CONFIG.EXCHANGE_RATES;
+export function isSupportedCurrency(currency: string): boolean {
+  return (PAYMENT_CONFIG.SUPPORTED_CURRENCIES as readonly string[]).includes(currency);
 }

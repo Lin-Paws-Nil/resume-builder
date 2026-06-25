@@ -422,8 +422,11 @@ export default function HomePage() {
             </div>
             <span className="text-white font-semibold text-lg">createresume.co</span>
           </div>
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-gray-400 mb-2">
             © 2026 createresume.co. All rights reserved.
+          </p>
+          <p className="text-center text-sm text-gray-500">
+            Contact us: <a href="mailto:whitehillpvt@gmail.com" className="text-blue-400 hover:text-blue-300">whitehillpvt@gmail.com</a>
           </p>
         </div>
       </footer>

@@ -3,30 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { PLANS, type PlanType } from '@/lib/types/subscription';
+import { PLANS, type PlanType, type RegionCode, REGIONAL_PRICING, getRegionFromCountryCode, getRegionalPlanPrice } from '@/lib/types/subscription';
 import { Crown, Zap, Star, FileText, Check, CreditCard } from 'lucide-react';
-
-interface SubscriptionUpgradeProps {
-  currentPlan: PlanType;
-  onUpgrade?: (plan: PlanType) => void;
-}
-
-interface CurrencyInfo {
-  symbol: string;
-  code: string;
-  conversionRate: number;
-}
-
-const currencyByCountry: Record<string, CurrencyInfo> = {
-  'US': { symbol: '$', code: 'USD', conversionRate: 0.012 },
-  'IN': { symbol: '₹', code: 'INR', conversionRate: 1 },
-  'GB': { symbol: '£', code: 'GBP', conversionRate: 0.0095 },
-  'EU': { symbol: '€', code: 'EUR', conversionRate: 0.011 },
-  'CA': { symbol: 'C$', code: 'CAD', conversionRate: 0.016 },
-  'AU': { symbol: 'A$', code: 'AUD', conversionRate: 0.018 },
-  'JP': { symbol: '¥', code: 'JPY', conversionRate: 1.78 },
-  'default': { symbol: '₹', code: 'INR', conversionRate: 1 },
-};
 
 interface SubscriptionUpgradeProps {
   currentPlan: PlanType;
@@ -49,56 +27,27 @@ function getPlanIcon(plan: PlanType) {
 export function SubscriptionUpgrade({ currentPlan, onUpgrade }: SubscriptionUpgradeProps) {
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [currency, setCurrency] = useState<CurrencyInfo>(currencyByCountry['default']);
+  const [region, setRegion] = useState<RegionCode | 'default'>('default');
   const [pendingPlan, setPendingPlan] = useState<PlanType | null>(null);
 
   useEffect(() => {
-    const detectCurrency = async () => {
+    const detectRegion = async () => {
       try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
         const countryCode = data.country_code;
-        
-        if (countryCode === 'IN') {
-          setCurrency(currencyByCountry['IN']);
-        } else if (countryCode === 'GB') {
-          setCurrency(currencyByCountry['GB']);
-        } else if (['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'IE'].includes(countryCode)) {
-          setCurrency(currencyByCountry['EU']);
-        } else if (countryCode === 'CA') {
-          setCurrency(currencyByCountry['CA']);
-        } else if (countryCode === 'AU') {
-          setCurrency(currencyByCountry['AU']);
-        } else if (countryCode === 'JP') {
-          setCurrency(currencyByCountry['JP']);
-        } else {
-          setCurrency(currencyByCountry['US']);
-        }
+        setRegion(getRegionFromCountryCode(countryCode));
       } catch (error) {
         console.error('Error detecting location:', error);
-        setCurrency(currencyByCountry['default']);
+        setRegion('default');
       }
     };
 
-    detectCurrency();
+    detectRegion();
   }, []);
 
-  const convertPrice = (inrPrice: string) => {
-    const cleanPrice = inrPrice.replace(/[₹,]/g, '');
-    const numPrice = parseFloat(cleanPrice);
-    
-    if (isNaN(numPrice)) return inrPrice;
-    
-    if (currency.code === 'INR') {
-      return `${currency.symbol}${numPrice.toLocaleString()}`;
-    }
-    
-    const converted = Math.round(numPrice * currency.conversionRate);
-    
-    if (currency.code === 'JPY') {
-      return `${currency.symbol}${converted.toLocaleString()}`;
-    }
-    return `${currency.symbol}${converted}`;
+  const getPriceDisplay = (planId: PlanType) => {
+    return getRegionalPlanPrice(planId, region);
   };
 
   const handleSelectPlan = (plan: PlanType) => {
@@ -216,7 +165,7 @@ export function SubscriptionUpgrade({ currentPlan, onUpgrade }: SubscriptionUpgr
                 </div>
                 <h3 className="text-xl font-bold text-white">{plan.name}</h3>
                 <div className="mt-3">
-                  <span className="text-4xl font-bold text-white">{convertPrice(plan.price)}</span>
+                  <span className="text-4xl font-bold text-white">{getPriceDisplay(planId)}</span>
                   <span className="text-gray-400 text-sm ml-1">/{plan.duration}</span>
                 </div>
                 <p className="text-sm text-gray-400 mt-2">{plan.description}</p>
@@ -274,11 +223,11 @@ export function SubscriptionUpgrade({ currentPlan, onUpgrade }: SubscriptionUpgr
                 </div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-300 text-sm">Price</span>
-                  <span className="text-white font-semibold">{convertPrice(PLANS[pendingPlan].price)}/{PLANS[pendingPlan].duration}</span>
+                  <span className="text-white font-semibold">{getPriceDisplay(pendingPlan)}/{PLANS[pendingPlan].duration}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 text-sm">Currency</span>
-                  <span className="text-white font-semibold">{currency.code}</span>
+                  <span className="text-white font-semibold">{REGIONAL_PRICING[region].code}</span>
                 </div>
               </div>
             </div>
