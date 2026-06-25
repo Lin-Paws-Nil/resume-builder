@@ -66,8 +66,25 @@ function LoginForm() {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    console.log('Google sign-in clicked');
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to initiate Google sign-in');
+      setLoading(false);
+    }
   };
 
   const handleResetPassword = () => {

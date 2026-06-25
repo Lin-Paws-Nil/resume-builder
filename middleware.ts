@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route + '/'));
   
   // Allow OAuth callback routes to pass through without auth checks
-  if (pathname.startsWith('/api/auth/linkedin')) {
+  if (pathname.startsWith('/api/auth/linkedin') || pathname.startsWith('/auth/callback')) {
     return response;
   }
 
