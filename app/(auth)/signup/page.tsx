@@ -144,15 +144,9 @@ export default function SignupPage() {
           
           // Check if email was actually sent
           if (authData.user && !authData.user.email_confirmed_at) {
-            // Email not confirmed yet - might need to resend or check Supabase settings
             setError('');
-            const message = 'Email confirmation required. ' +
-              'If you did not receive an email, please check:\n' +
-              '1. Your spam/junk folder\n' +
-              '2. Supabase Dashboard → Authentication → Settings (email confirmation must be enabled)\n' +
-              '3. Visit /manual-confirm to resend confirmation email';
-            alert(message);
-            router.push('/login?message=Please check your email to confirm your account. If no email received, visit /manual-confirm');
+            alert('Email confirmation required. Please check your spam/junk folder if you did not receive the email.');
+            router.push('/login?message=Please check your email to confirm your account');
           } else {
             // Should not happen, but handle it
             router.push('/builder');
