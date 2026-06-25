@@ -1,9 +1,79 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
 export const metadata: Metadata = {
-  title: "createresume.co — AI-Powered Free Resume Builder",
-  description: "Build professional resumes in minutes with AI assistance. ATS-friendly templates, pre-written content, and smart suggestions to land your dream job.",
+  metadataBase: new URL('https://createresume.co'),
+  title: {
+    default: 'createresume.co — AI-Powered Free Resume Builder',
+    template: '%s | createresume.co',
+  },
+  description:
+    'Build professional resumes in minutes with AI assistance. ATS-friendly templates, pre-written content, and smart suggestions to land your dream job. Free to use.',
+  keywords: [
+    'free resume builder',
+    'AI resume builder',
+    'ATS friendly resume',
+    'resume templates',
+    'professional resume',
+    'online resume maker',
+    'resume builder free',
+    'create resume online',
+    'resume generator',
+    'best resume builder 2026',
+    'resume builder no sign up',
+    'ATS resume templates free',
+  ],
+  authors: [{ name: 'createresume.co' }],
+  creator: 'createresume.co',
+  publisher: 'createresume.co',
+  openGraph: {
+    title: 'Free AI Resume Builder | createresume.co',
+    description:
+      'Build a professional, ATS-friendly resume in minutes. 12+ free templates, AI-powered suggestions, and instant PDF download.',
+    url: 'https://createresume.co',
+    siteName: 'createresume.co',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'createresume.co — Free AI Resume Builder with ATS-friendly templates',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Free AI Resume Builder | createresume.co',
+    description:
+      'Build a professional, ATS-friendly resume in minutes. Free templates and AI suggestions.',
+    images: ['/opengraph-image'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://createresume.co',
+  },
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -12,9 +82,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+    <html lang="en" className={inter.variable}>
+      <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
 }
-
