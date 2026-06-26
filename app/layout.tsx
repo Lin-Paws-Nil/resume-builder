@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: '%s | createresume.co',
   },
   description:
-    'Build professional resumes in minutes with AI assistance. ATS-friendly templates, pre-written content, and smart suggestions to land your dream job. Free to use.',
+    'Build professional resumes in minutes with AI. ATS-friendly templates, smart suggestions, and instant PDF download. Free to use.',
   keywords: [
     'free resume builder',
     'AI resume builder',

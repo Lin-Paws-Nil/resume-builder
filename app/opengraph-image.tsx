@@ -37,11 +37,11 @@ export default async function Image() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              fontSize: '40px',
+              color: 'white',
             }}
           >
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-              <path d="M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2zm2 4v2h8V7H8zm0 4v2h8v-2H8zm0 4v2h5v-2H8z" fill="white"/>
-            </svg>
+            📄
           </div>
           <span
             style={{
@@ -73,7 +73,7 @@ export default async function Image() {
             maxWidth: '800px',
           }}
         >
-          12+ ATS-friendly templates. AI-powered suggestions. Instant PDF download.
+          12+ ATS-friendly templates • AI-powered suggestions • Instant PDF download
         </p>
       </div>
     ),
