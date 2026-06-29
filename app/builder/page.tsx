@@ -20,6 +20,8 @@ import { ToastProvider, showToast } from '@/components/ui/toast';
 import { useConfirmDialog } from '@/components/ui/confirm-dialog';
 import { createClient } from '@/lib/supabase/client';
 import { ProfileImageUpload } from '@/components/resume/ProfileImageUpload';
+import { VideoAdModal } from '@/components/ads/VideoAdModal';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +46,7 @@ function BuilderPageContent() {
   const { confirm, ConfirmDialog } = useConfirmDialog();
   
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [leftPanelWidth, setLeftPanelWidth] = useState(640);
@@ -309,27 +312,21 @@ function BuilderPageContent() {
       return;
     }
 
-    // Check subscription
-    if (!subscription?.canDownload) {
-      const shouldUpgrade = await confirm({
-        title: 'Premium Feature',
-        description: 'PDF download requires an active subscription. Would you like to upgrade your plan?',
-        confirmText: 'Upgrade Now',
-        cancelText: 'Maybe later',
-        type: 'warning',
-        confirmVariant: 'green',
-      });
-      
-      if (shouldUpgrade) {
-        router.push('/subscribe?return=' + encodeURIComponent('/builder'));
-      }
+    // Premium users: download directly without ads
+    if (subscription?.isPremium) {
+      await executeDownload();
       return;
     }
 
+    // Free users: show video ad before download
+    setShowAdModal(true);
+  };
+
+  const executeDownload = async () => {
+    if (!resume) return;
     setIsDownloading(true);
     try {
       const { downloadResumeAsPDF } = await import('@/lib/utils/download-pdf');
-      // Generate filename from user's name if available
       const filename = resume.personalInfo?.fullName 
         ? `${resume.personalInfo.fullName.replace(/[^a-z0-9]/gi, '_')}_Resume.pdf`
         : 'resume.pdf';
@@ -345,6 +342,11 @@ function BuilderPageContent() {
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleAdComplete = () => {
+    setShowAdModal(false);
+    executeDownload();
   };
 
   const handlePreviewAndSave = async () => {
@@ -519,7 +521,7 @@ function BuilderPageContent() {
               onClick={handleDownload}
               disabled={!isMounted || isDownloading || !resume}
               className="px-6 py-2.5 text-sm min-w-[140px]"
-              title={isGuest ? 'Log in to download' : !subscription?.canDownload ? 'Upgrade to download' : 'Download PDF'}
+              title={isGuest ? 'Log in to download' : 'Download PDF'}
             >
               {isDownloading ? (
                 <>
@@ -675,6 +677,13 @@ function BuilderPageContent() {
           
           <div className="flex-1 min-h-0 overflow-y-auto">
             <SectionEditor />
+            
+            {/* Banner Ad for free users */}
+            {!subscription?.isPremium && (
+              <div className="p-4 border-t border-gray-200">
+                <AdBanner />
+              </div>
+            )}
           </div>
         </div>
 
@@ -707,6 +716,11 @@ function BuilderPageContent() {
       
       <ToastProvider />
       <ConfirmDialog />
+      <VideoAdModal
+        isOpen={showAdModal}
+        onComplete={handleAdComplete}
+        onClose={() => setShowAdModal(false)}
+      />
       <ProfileImageUpload 
         open={showImageUpload} 
         onOpenChange={setShowImageUpload} 

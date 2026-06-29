@@ -97,6 +97,12 @@ export default function RootLayout({
             gtag('config', 'G-7483ED72QY');
           `}
         </Script>
+        {/* Google AdSense - replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID once approved */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </head>
       <body className={`${inter.className} antialiased`}>{children}</body>
     </html>

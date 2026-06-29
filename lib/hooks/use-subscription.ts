@@ -10,6 +10,7 @@ export interface Subscription {
   isActive: boolean;
   endDate: string | null;
   canDownload: boolean;
+  isPremium: boolean;
 }
 
 export function useSubscription(userId: string | null) {
@@ -24,6 +25,7 @@ export function useSubscription(userId: string | null) {
         isActive: false,
         endDate: null,
         canDownload: false,
+        isPremium: false,
       });
       setLoading(false);
       return;
@@ -60,6 +62,7 @@ export function useSubscription(userId: string | null) {
           isActive: false,
           endDate: null,
           canDownload: false,
+          isPremium: false,
         });
         setLoading(false);
         return;
@@ -84,23 +87,25 @@ export function useSubscription(userId: string | null) {
         }
       }
 
-      const canDownload = isActive && data.plan !== 'free';
+      const isPremium = isActive && data.plan !== 'free';
+      const canDownload = isPremium;
 
       setSubscription({
         plan: data.plan as PlanType,
         isActive,
         endDate: data.end_date,
         canDownload,
+        isPremium,
       });
       setLoading(false);
     } catch (error: any) {
       console.error('Error loading subscription:', error);
-      // Set default subscription on error so app can continue
       setSubscription({
         plan: 'free',
         isActive: false,
         endDate: null,
         canDownload: false,
+        isPremium: false,
       });
       setLoading(false);
     }
