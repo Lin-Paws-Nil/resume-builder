@@ -75,6 +75,9 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icon.svg',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-4179373584807182',
+  },
 };
 
 export default function RootLayout({
@@ -97,9 +100,9 @@ export default function RootLayout({
             gtag('config', 'G-7483ED72QY');
           `}
         </Script>
-        {/* Google AdSense - replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID once approved */}
+        {/* Google AdSense */}
         <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4179373584807182"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
