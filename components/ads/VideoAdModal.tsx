@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Play } from 'lucide-react';
+import { Play, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface VideoAdModalProps {
   isOpen: boolean;
@@ -18,15 +19,17 @@ export function VideoAdModal({
 }: VideoAdModalProps) {
   const [timeRemaining, setTimeRemaining] = useState(adDurationSeconds);
   const [canSkip, setCanSkip] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!isOpen) {
       setTimeRemaining(adDurationSeconds);
       setCanSkip(false);
+      setShowUpgrade(false);
       return;
     }
 
-    // Lock body scroll while modal is open
     document.body.style.overflow = 'hidden';
 
     const interval = setInterval(() => {
@@ -39,18 +42,22 @@ export function VideoAdModal({
       });
     }, 1000);
 
-    const timeout = setTimeout(() => {
+    const upgradeTimeout = setTimeout(() => {
+      setShowUpgrade(true);
+    }, 15000);
+
+    const skipTimeout = setTimeout(() => {
       setCanSkip(true);
     }, adDurationSeconds * 1000);
 
     return () => {
       clearInterval(interval);
-      clearTimeout(timeout);
+      clearTimeout(upgradeTimeout);
+      clearTimeout(skipTimeout);
       document.body.style.overflow = '';
     };
   }, [isOpen, adDurationSeconds]);
 
-  // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
 
@@ -69,6 +76,11 @@ export function VideoAdModal({
       onComplete();
     }
   }, [canSkip, onComplete]);
+
+  const handleUpgrade = () => {
+    onClose();
+    router.push('/subscribe?return=/builder');
+  };
 
   if (!isOpen) return null;
 
@@ -128,6 +140,20 @@ export function VideoAdModal({
                 <span className="text-xs text-gray-500">{timeRemaining}s remaining</span>
               </div>
             </div>
+
+            {/* Skip Ad - Go Premium upsell (appears at 15s) */}
+            {showUpgrade && !canSkip && (
+              <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <button
+                  onClick={handleUpgrade}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-bold rounded-xl hover:from-yellow-400 hover:to-orange-400 transition-all shadow-lg shadow-orange-500/25 hover:scale-105"
+                >
+                  <Zap className="h-4 w-4 fill-white" />
+                  Skip Ads Forever — Go Premium
+                </button>
+                <p className="text-xs text-gray-500 mt-2">Instant downloads + AI features</p>
+              </div>
+            )}
           </div>
         </div>
 
