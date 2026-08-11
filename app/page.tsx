@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { FileText, Sparkles, Shield, TrendingUp, Star, ArrowRight } from 'lucide-react';
-import { LiveCounter } from '@/components/marketing/LiveCounter';
-import { HeroCTAButtons, CTAButton } from '@/components/marketing/CTAButton';
+import { CTAButton } from '@/components/marketing/CTAButton';
+import { HeroSection } from '@/components/marketing/HeroSection';
+import { TemplateScrollStrip } from '@/components/marketing/TemplateScrollStrip';
 import { Footer } from '@/components/marketing/Footer';
 import type { Metadata } from 'next';
 
@@ -134,9 +135,13 @@ export default function HomePage() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 relative">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl shadow-lg">
-              <FileText className="h-6 w-6 text-white" />
-            </div>
+            <Image
+              src="/logo.jpeg"
+              alt="createresume.co logo"
+              width={80}
+              height={80}
+              className="rounded-xl"
+            />
             <span className="text-xl font-bold text-gray-900">createresume.co</span>
           </div>
           <nav aria-label="Main navigation" className="hidden md:flex items-center gap-6 mr-auto ml-12">
@@ -158,54 +163,10 @@ export default function HomePage() {
       <main>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20 relative z-10">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <LiveCounter />
+      <HeroSection />
 
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Free AI <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Resume Builder</span> — Create Professional Resumes in Minutes
-            </h1>
-
-            <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-              The first step to a better job? A better resume. Only 2% of resumes win, and yours will be one of them. Create it now with our free resume builder!
-            </p>
-
-            <HeroCTAButtons />
-
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-3xl font-bold text-green-400 mb-1">48%</div>
-                  <div className="text-sm text-gray-300">more likely to get hired</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-green-400 mb-1">12%</div>
-                  <div className="text-sm text-gray-300">better pay with your next job</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Side - Resume Preview Image */}
-          <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black p-8 transform hover:scale-105 transition-transform duration-500">
-              <div className="relative aspect-[8.5/11] bg-white rounded-lg shadow-2xl">
-                <Image
-                  src="/resume-examples/aurora/aurora.png"
-                  alt="Free ATS-friendly resume template example — Aurora modern two-column design by createresume.co"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div className="absolute top-12 -right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full shadow-lg transform rotate-12 font-semibold text-sm z-10">
-                ✓ ATS Perfect
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Template Scroll Strip */}
+      <TemplateScrollStrip />
 
       {/* Companies Section */}
       <section className="bg-white/5 backdrop-blur-sm py-12 border-y border-white/10 relative z-10">

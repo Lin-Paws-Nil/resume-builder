@@ -11,8 +11,8 @@ export function Footer() {
               <Image
                 src="/logo.jpeg"
                 alt="createresume.co logo"
-                width={36}
-                height={36}
+                width={44}
+                height={44}
                 className="rounded-xl"
               />
               <span className="text-white font-semibold text-lg">createresume.co</span>

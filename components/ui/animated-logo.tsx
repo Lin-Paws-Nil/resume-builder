@@ -12,9 +12,9 @@ interface AnimatedLogoProps {
 
 export function AnimatedLogo({ size = 'md', showText = true, className = '' }: AnimatedLogoProps) {
   const sizes = {
-    sm: { img: 36, text: 'text-lg' },
-    md: { img: 40, text: 'text-xl' },
-    lg: { img: 52, text: 'text-2xl' },
+    sm: { img: 44, text: 'text-lg' },
+    md: { img: 52, text: 'text-xl' },
+    lg: { img: 64, text: 'text-2xl' },
   };
 
   return (
