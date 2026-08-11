@@ -188,9 +188,7 @@ export default function SignupPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center gap-3 mb-6">
-            <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-3 rounded-xl shadow-lg">
-              <FileText className="h-8 w-8 text-white" />
-            </div>
+            <img src="/logo.jpeg" alt="createresume.co logo" width="48" height="48" className="rounded-xl" />
             <h1 className="text-3xl font-bold text-white">createresume.co</h1>
           </div>
           <h2 className="text-4xl font-bold text-white mb-2">Create Account</h2>

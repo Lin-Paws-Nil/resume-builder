@@ -23,9 +23,7 @@ export default function TemplatesPage() {
                 &larr; Back
               </Link>
               <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl shadow-lg">
-                  <FileText className="h-5 w-5 text-white" />
-                </div>
+                <img src="/logo.jpeg" alt="createresume.co logo" width="80" height="80" className="rounded-xl" />
                 <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   createresume.co
                 </span>

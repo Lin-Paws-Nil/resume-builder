@@ -17,9 +17,7 @@ export default function TermsPage() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2.5 rounded-xl shadow-lg">
-              <FileText className="h-6 w-6 text-white" />
-            </div>
+            <img src="/logo.jpeg" alt="createresume.co logo" width="80" height="80" className="rounded-xl" />
             <span className="text-xl font-bold text-gray-900">createresume.co</span>
           </Link>
         </div>
